@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Configure jatin471/test-githubV2 secrets/vars and dispatch a V2 E2E workflow.
+# Configure repo-posture/github-pipelines secrets/vars and dispatch a V2 E2E workflow.
 # Usage:
 #   export VAULT_TOKEN HARNESS_QA_API_KEY [DOCKER_USERNAME DOCKER_PASSWORD]
 #   export COSIGN_PRIVATE_KEY COSIGN_PASSWORD COSIGN_PUBLIC_KEY   # keypair flows
@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-REPO="${REPO:-jatin471/test-githubV2}"
+REPO="${REPO:-repo-posture/github-pipelines}"
 LOGIN="$(gh api user --jq .login)"
 echo "Configuring $REPO as gh user '$LOGIN'"
 

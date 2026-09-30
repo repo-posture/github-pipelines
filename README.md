@@ -1,4 +1,4 @@
-# test-githubV2 — SCS GitHub Actions E2E
+# github-pipelines — SCS GitHub Actions E2E
 
 GitHub Actions V2 pipelines for Harness SCS, mirroring the scenario matrix used in:
 
@@ -7,7 +7,8 @@ GitHub Actions V2 pipelines for Harness SCS, mirroring the scenario matrix used 
 
 Plugin images default to the `test-githubV2` tags (`harness/ssca-plugin:test-githubV2`, etc.).
 
-Remote repo: https://github.com/jatin471/test-githubV2
+Remote repo: https://github.com/repo-posture/github-pipelines  
+(Companion to [repo-posture/jenkins-pipelines](https://github.com/repo-posture/jenkins-pipelines).)
 
 ## V2 E2E workflows
 
@@ -61,8 +62,8 @@ Defaults in the configure script target **QA0** (same coords as `jenkins-scs-loc
 ## Manual dispatch
 
 ```bash
-gh workflow run container-kms.yml -R jatin471/test-githubV2 --ref main
-gh workflow run container-keyless.yml -R jatin471/test-githubV2 --ref main -f attest=true
-gh workflow run container-keypair.yml -R jatin471/test-githubV2 --ref main -f attest=true
-gh workflow run non-container-kms.yml -R jatin471/test-githubV2 --ref main
+gh workflow run container-kms.yml -R repo-posture/github-pipelines --ref main
+gh workflow run container-keyless.yml -R repo-posture/github-pipelines --ref main -f attest=true
+gh workflow run container-keypair.yml -R repo-posture/github-pipelines --ref main -f attest=true
+gh workflow run non-container-kms.yml -R repo-posture/github-pipelines --ref main
 ```
