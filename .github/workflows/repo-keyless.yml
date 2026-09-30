@@ -1,0 +1,95 @@
+# Repository V2 E2E on QA.
+# Repository SBOM attestation is unsupported; generation, ingestion, and enforcement run sequentially.
+name: "V2 repo-keyless"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ssca:
+    name: ssca
+    runs-on: ubuntu-latest
+    env:
+      FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout sample repository
+        uses: actions/checkout@v4
+        with:
+          repository: KartikSaurya/Buggy-App
+          ref: ${{ vars.GIT_BRANCH }}
+          path: sample-repo
+
+      - name: Repository SBOM generation (orchestrate)
+        uses: ./v2/repo-sbom-generation
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          REPO_URL: ${{ vars.GIT_REPO_URL }}
+          REPO_PATH: /
+          REPO_VARIANT: ${{ vars.GIT_BRANCH }}
+          REPO_VARIANT_TYPE: branch
+          REPO_CLONED_CODEBASE: ${{ github.workspace }}/sample-repo
+          SBOM_TOOL: ${{ vars.SBOM_TOOL }}
+          SBOM_FORMAT: ${{ vars.SBOM_FORMAT }}
+          PLUGIN_SBOMDESTINATION: ${{ vars.SBOM_LOCAL_PATH }}
+          ATTEST_SBOM: "false"
+          PLUGIN_KEYLESS_TYPE: non-harness
+
+      - name: Resolve SBOM file for ingestion
+        env:
+          SBOM_LOCAL_PATH: ${{ vars.SBOM_LOCAL_PATH }}
+        run: |
+          SBOM_FILE="$(ls -t "$SBOM_LOCAL_PATH"/sbom_*.json 2>/dev/null | head -1)"
+          if [ -z "$SBOM_FILE" ]; then
+            echo "No SBOM file under $SBOM_LOCAL_PATH" >&2
+            exit 1
+          fi
+          echo "INGESTION_SBOM_FILE=$SBOM_FILE" >> "$GITHUB_ENV"
+
+      - name: Repository SBOM ingestion (orchestrate)
+        uses: ./v2/sbom-ingestion
+        env:
+          REPO_URL: ${{ vars.GIT_REPO_URL }}
+          REPO_PATH: /
+          REPO_VARIANT: ${{ vars.GIT_BRANCH }}
+          REPO_VARIANT_TYPE: branch
+          REPO_CLONED_CODEBASE: ${{ github.workspace }}/sample-repo
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: repository
+          SBOM_SOURCE: ${{ vars.GIT_REPO_URL }}
+          PLUGIN_SBOMDESTINATION: ${{ env.INGESTION_SBOM_FILE }}
+          ATTEST_SBOM: "false"
+          PLUGIN_KEYLESS_TYPE: non-harness
+
+      - name: Repository SBOM policy enforcement (enforce)
+        uses: ./v2/sbom-policy-enforcement
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: repository
+          SBOM_SOURCE: ${{ vars.GIT_REPO_URL }}
+          REPO_URL: ${{ vars.GIT_REPO_URL }}
+          REPO_PATH: /
+          REPO_VARIANT: ${{ vars.GIT_BRANCH }}
+          REPO_VARIANT_TYPE: branch
+          REPO_CLONED_CODEBASE: ${{ github.workspace }}/sample-repo
+          VERIFY_SBOM: "false"
+          POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
+          PLUGIN_KEYLESS_TYPE: non-harness

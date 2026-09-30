@@ -1,0 +1,133 @@
+name: "SSCA SBOM Policy Enforcement (V2)"
+description: "Verify the SBOM attestation and enforce OPA policies via GitHub Actions on the SSCA V2 design"
+inputs:
+  PLUGIN_IMAGE:
+    description: "Plugin Docker image built from ssca-plugins (V2 github subcommands)"
+    required: false
+    default: "harness/ssca-plugin:test-githubV2"
+  HARNESS_ACCOUNT_URL:
+    required: true
+  HARNESS_API_KEY:
+    required: true
+  HARNESS_ACCOUNT_ID:
+    required: true
+  HARNESS_ORG_ID:
+    required: true
+  HARNESS_PROJECT_ID:
+    required: true
+  HARNESS_SSCA_SERVICE_TOKEN:
+    required: false
+  SBOM_SOURCE:
+    required: true
+  SOURCE_TYPE:
+    description: "docker | repository | local (Jenkins-aligned SOURCE_TYPE)"
+    required: false
+    default: "docker"
+  POLICY_SET_REF:
+    description: "OPA policy set reference"
+    required: false
+  VERIFY_SBOM:
+    required: false
+    default: "true"
+  COSIGN_PUBLIC_KEY:
+    required: false
+  PLUGIN_KEYLESS_TYPE:
+    required: false
+  DOCKER_USERNAME:
+    required: false
+  DOCKER_PASSWORD:
+    required: false
+
+  PLUGIN_WORKSPACE:
+    description: "File path for non-container artifacts (SOURCE_TYPE=local)"
+    required: false
+  ARTIFACT_NAME:
+    description: "Non-container artifact name (optional; auto-derived from workspace if unset)"
+    required: false
+  ARTIFACT_VERSION:
+    description: "Version label for non-container artifacts"
+    required: false
+
+  KMS_KEY:
+    description: "HashiCorp Vault transit key path for cosign (same as V1 KMS_KEY)"
+    required: false
+  VAULT_ADDR:
+    required: false
+  VAULT_TOKEN:
+    required: false
+  REPO_URL:
+    required: false
+  REPO_PATH:
+    required: false
+  REPO_VARIANT:
+    required: false
+  REPO_VARIANT_TYPE:
+    required: false
+  REPO_CLONED_CODEBASE:
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: SSCA SBOM Policy Enforcement (V2)
+      shell: bash
+      env:
+        HARNESS_ACCOUNT_URL: ${{ inputs.HARNESS_ACCOUNT_URL }}
+        HARNESS_API_KEY: ${{ inputs.HARNESS_API_KEY }}
+        HARNESS_ACCOUNT_ID: ${{ inputs.HARNESS_ACCOUNT_ID }}
+        HARNESS_ORG_ID: ${{ inputs.HARNESS_ORG_ID }}
+        HARNESS_PROJECT_ID: ${{ inputs.HARNESS_PROJECT_ID }}
+        HARNESS_SSCA_SERVICE_TOKEN: ${{ inputs.HARNESS_SSCA_SERVICE_TOKEN }}
+        SBOM_SOURCE: ${{ inputs.SBOM_SOURCE }}
+        SOURCE_TYPE: ${{ inputs.SOURCE_TYPE }}
+        POLICY_SET_REF: ${{ inputs.POLICY_SET_REF }}
+        VERIFY_SBOM: ${{ inputs.VERIFY_SBOM }}
+        SSCA_ENFORCEMENT_COSIGN_PUBLIC_KEY: ${{ inputs.COSIGN_PUBLIC_KEY }}
+        PLUGIN_KEYLESS_TYPE: ${{ inputs.PLUGIN_KEYLESS_TYPE }}
+        KMS_KEY: ${{ inputs.KMS_KEY }}
+        VAULT_ADDR: ${{ inputs.VAULT_ADDR }}
+        VAULT_TOKEN: ${{ inputs.VAULT_TOKEN }}
+        REPO_URL: ${{ inputs.REPO_URL }}
+        REPO_PATH: ${{ inputs.REPO_PATH }}
+        REPO_VARIANT: ${{ inputs.REPO_VARIANT }}
+        REPO_VARIANT_TYPE: ${{ inputs.REPO_VARIANT_TYPE }}
+        REPO_CLONED_CODEBASE: ${{ inputs.REPO_CLONED_CODEBASE }}
+        DOCKER_USERNAME: ${{ inputs.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ inputs.DOCKER_PASSWORD }}
+        PLUGIN_WORKSPACE: ${{ inputs.PLUGIN_WORKSPACE }}
+        ARTIFACT_WORKSPACE: ${{ inputs.PLUGIN_WORKSPACE }}
+        PLUGIN_NON_CONTAINER_ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
+        ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
+        PLUGIN_LOCAL_FILE_VERSION: ${{ inputs.ARTIFACT_VERSION }}
+        ARTIFACT_VERSION: ${{ inputs.ARTIFACT_VERSION }}
+      run: |
+        set -euo pipefail
+        if [ "${PLUGIN_KEYLESS_TYPE:-}" = "non-harness" ]; then
+          if [ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
+            echo "keyless verification requires 'permissions: id-token: write' in the calling workflow" >&2
+            exit 1
+          fi
+          PLUGIN_NON_HARNESS_OIDC_TOKEN="$(curl -sSf \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=harness-fulcio" | jq -r '.value')"
+          export PLUGIN_NON_HARNESS_OIDC_TOKEN
+        fi
+        PLUGIN_IMAGE="${{ inputs.PLUGIN_IMAGE }}"
+        ENV_FILE="$(mktemp)"
+        env | grep -E '^(HARNESS_|GITHUB_|SBOM_|SOURCE_|PLUGIN_|SSCA_|VAULT_|DOCKER_|ATTEST_|POLICY_|VERIFY_|REPO_|SLSA_|REGISTRY_|KMS_|GCP_|RUNNER_|ACTIONS_ID_TOKEN|OIDC_|FULCIO_)' > "$ENV_FILE" || true
+        if [ -n "${PLUGIN_NON_HARNESS_OIDC_TOKEN:-}" ]; then
+          echo "PLUGIN_NON_HARNESS_OIDC_TOKEN=${PLUGIN_NON_HARNESS_OIDC_TOKEN}" >> "$ENV_FILE"
+        fi
+        DOCKER_SOCK_MOUNT=()
+        case "${SOURCE_TYPE:-docker}" in
+          docker|image)
+            DOCKER_SOCK_MOUNT=(-v /var/run/docker.sock:/var/run/docker.sock)
+            ;;
+        esac
+        docker run --rm \
+          "${DOCKER_SOCK_MOUNT[@]}" \
+          -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" \
+          -w "${GITHUB_WORKSPACE}" \
+          --env-file "$ENV_FILE" \
+          --entrypoint /bin/ssca-plugin \
+          "$PLUGIN_IMAGE" \
+          github-enforce
