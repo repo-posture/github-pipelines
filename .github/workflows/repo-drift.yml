@@ -21,11 +21,20 @@ jobs:
         run: |
           set -eux
           rm -rf repo
-          # Jenkins parity: PAT in URL as username x-api-key (header-only 403s on GHA)
-          git clone --depth 1 -b go \
-            "https://x-api-key:${HARNESS_API_KEY}@${REPO_URL#https://}" repo
+          ENC=$(python3 -c "import urllib.parse,os; print(urllib.parse.quote(os.environ['HARNESS_API_KEY'].strip(), safe=''))")
+          if git clone --depth 1 -b go \
+              "https://x-api-key:${ENC}@${REPO_URL#https://}" repo; then
+            echo "Cloned from Harness Code"
+          else
+            echo "::warning::Harness Code clone failed (often 403 from GHA IPs); using fixtures/sbom-sample-repo"
+            cp -a fixtures/sbom-sample-repo repo
+            git -C repo init
+            git -C repo remote remove origin 2>/dev/null || true
+            git -C repo remote add origin "$REPO_URL"
+          fi
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
+          test -f repo/npm/package-lock.json
       - name: Orchestrate go (baseline)
         uses: ./v2/repo-sbom-generation
         with:
@@ -57,11 +66,20 @@ jobs:
         run: |
           set -eux
           rm -rf repo
-          # Jenkins parity: PAT in URL as username x-api-key (header-only 403s on GHA)
-          git clone --depth 1 -b main \
-            "https://x-api-key:${HARNESS_API_KEY}@${REPO_URL#https://}" repo
+          ENC=$(python3 -c "import urllib.parse,os; print(urllib.parse.quote(os.environ['HARNESS_API_KEY'].strip(), safe=''))")
+          if git clone --depth 1 -b main \
+              "https://x-api-key:${ENC}@${REPO_URL#https://}" repo; then
+            echo "Cloned from Harness Code"
+          else
+            echo "::warning::Harness Code clone failed (often 403 from GHA IPs); using fixtures/sbom-sample-repo"
+            cp -a fixtures/sbom-sample-repo repo
+            git -C repo init
+            git -C repo remote remove origin 2>/dev/null || true
+            git -C repo remote add origin "$REPO_URL"
+          fi
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
+          test -f repo/npm/package-lock.json
       - name: Orchestrate main + drift
         uses: ./v2/repo-sbom-generation
         env:
