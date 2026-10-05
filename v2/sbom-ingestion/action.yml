@@ -41,6 +41,22 @@ inputs:
   DOCKER_PASSWORD:
     required: false
 
+  REPO_URL:
+    description: "Repository URL (SOURCE_TYPE=repository)"
+    required: false
+  REPO_PATH:
+    description: "Subpath within the cloned repo"
+    required: false
+  REPO_VARIANT:
+    description: "Branch/tag/commit"
+    required: false
+  REPO_VARIANT_TYPE:
+    description: "branch | tag | commit"
+    required: false
+  REPO_CLONED_CODEBASE:
+    description: "Path to checked-out codebase"
+    required: false
+
   PLUGIN_WORKSPACE:
     description: "File path for non-container artifacts (SOURCE_TYPE=local)"
     required: false
@@ -83,6 +99,11 @@ runs:
         KMS_KEY: ${{ inputs.KMS_KEY }}
         DOCKER_USERNAME: ${{ inputs.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ inputs.DOCKER_PASSWORD }}
+        REPO_URL: ${{ inputs.REPO_URL }}
+        REPO_PATH: ${{ inputs.REPO_PATH }}
+        REPO_VARIANT: ${{ inputs.REPO_VARIANT }}
+        REPO_VARIANT_TYPE: ${{ inputs.REPO_VARIANT_TYPE }}
+        REPO_CLONED_CODEBASE: ${{ inputs.REPO_CLONED_CODEBASE }}
         PLUGIN_WORKSPACE: ${{ inputs.PLUGIN_WORKSPACE }}
         ARTIFACT_WORKSPACE: ${{ inputs.PLUGIN_WORKSPACE }}
         PLUGIN_NON_CONTAINER_ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}

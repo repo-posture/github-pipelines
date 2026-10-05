@@ -42,5 +42,10 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SOURCE_TYPE: repository
           SBOM_SOURCE: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+          REPO_PATH: /
+          REPO_VARIANT: main
+          REPO_VARIANT_TYPE: branch
+          REPO_CLONED_CODEBASE: ${{ github.workspace }}/repo
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/sbom.spdx.json
           ATTEST_SBOM: "false"

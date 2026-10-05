@@ -591,8 +591,11 @@ def repo_clone_step(branch: str = "main") -> str:
 """
 
 
-def repo_gen(name: str, tool: str, fmt: str) -> str:
+def repo_gen(name: str, tool: str, fmt: str, repo_path: str = "/", plugin_image: str = "") -> str:
     h = header(name, f"Repo SBOM generation · {tool} · {fmt}")
+    plugin = ""
+    if plugin_image:
+        plugin = f"\n          PLUGIN_IMAGE: {plugin_image}"
     return h + f"""\
   scs:
     name: Repo generation
@@ -602,9 +605,9 @@ def repo_gen(name: str, tool: str, fmt: str) -> str:
 {repo_clone_step()}      - name: Repository SBOM generation
         uses: ./v2/repo-sbom-generation
         with:
-{HARNESS_COMMON}
+{HARNESS_COMMON}{plugin}
           REPO_URL: ${{{{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}}}
-          REPO_PATH: /
+          REPO_PATH: {repo_path}
           REPO_VARIANT: main
           REPO_VARIANT_TYPE: branch
           REPO_CLONED_CODEBASE: ${{{{ github.workspace }}}}/repo
@@ -620,7 +623,7 @@ def repo_gen(name: str, tool: str, fmt: str) -> str:
           SOURCE_TYPE: repository
           SBOM_SOURCE: ${{{{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}}}
           REPO_URL: ${{{{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}}}
-          REPO_PATH: /
+          REPO_PATH: {repo_path}
           REPO_VARIANT: main
           REPO_VARIANT_TYPE: branch
           REPO_CLONED_CODEBASE: ${{{{ github.workspace }}}}/repo
@@ -648,6 +651,11 @@ def repo_ingest() -> str:
 {HARNESS_COMMON}
           SOURCE_TYPE: repository
           SBOM_SOURCE: ${{{{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}}}
+          REPO_URL: ${{{{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}}}
+          REPO_PATH: /
+          REPO_VARIANT: main
+          REPO_VARIANT_TYPE: branch
+          REPO_CLONED_CODEBASE: ${{{{ github.workspace }}}}/repo
           PLUGIN_SBOMDESTINATION: ${{{{ github.workspace }}}}/sbom.spdx.json
           ATTEST_SBOM: "false"
 """
@@ -857,7 +865,17 @@ def main() -> None:
     # Repo
     write("repo-gen-syft-spdx", repo_gen("repo-gen-syft-spdx", "Syft", "spdx-json"))
     write("repo-gen-syft-cdx", repo_gen("repo-gen-syft-cdx", "Syft", "cyclonedx-json"))
-    write("repo-gen-cdxgen", repo_gen("repo-gen-cdxgen", "cdxgen", "cyclonedx-json"))
+    # Jenkins uses harness/ssca-cdxgen-plugin + REPO_PATH=npm
+    write(
+        "repo-gen-cdxgen",
+        repo_gen(
+            "repo-gen-cdxgen",
+            "cdxgen",
+            "cyclonedx-json",
+            repo_path="npm",
+            plugin_image="harness/ssca-cdxgen-plugin:test-githubV2",
+        ),
+    )
     write("repo-ingest", repo_ingest())
     write("repo-drift", repo_drift())
 
