@@ -74,7 +74,7 @@ jobs:
           SBOM_FORMAT: cyclonedx-json
           PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: AWS
@@ -89,7 +89,7 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SIGNING_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kms
           SOURCE_TYPE: ecr
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: AWS
@@ -104,7 +104,7 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SIGNING_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kms
           SOURCE_TYPE: ecr
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: AWS
@@ -120,7 +120,7 @@ jobs:
           SLSA_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kms
           SOURCE_TYPE: ecr
           ATTEST_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: AWS
@@ -136,7 +136,7 @@ jobs:
           SLSA_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kms
           SOURCE_TYPE: ecr
           VERIFY_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: AWS
@@ -154,7 +154,7 @@ jobs:
           SOURCE_TYPE: ecr
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: AWS

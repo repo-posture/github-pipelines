@@ -54,7 +54,7 @@ jobs:
           SBOM_FORMAT: cyclonedx-json
           PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -69,7 +69,7 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SIGNING_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -84,7 +84,7 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SIGNING_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -100,7 +100,7 @@ jobs:
           SLSA_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
           ATTEST_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -116,7 +116,7 @@ jobs:
           SLSA_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
           VERIFY_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -134,7 +134,7 @@ jobs:
           SOURCE_TYPE: docker
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}

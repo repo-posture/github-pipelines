@@ -39,7 +39,7 @@ jobs:
           ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/sbom.json
           ATTEST_SBOM: "false"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
       - name: Artifact sign
@@ -55,7 +55,7 @@ jobs:
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           ARTIFACT_NAME: scs-github-automation-test.jar
           ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
       - name: Artifact verify
@@ -71,7 +71,7 @@ jobs:
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           ARTIFACT_NAME: scs-github-automation-test.jar
           ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
       - name: SLSA attest
@@ -88,7 +88,7 @@ jobs:
           ARTIFACT_NAME: scs-github-automation-test.jar
           ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
           ATTEST_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
       - name: SLSA verify
@@ -105,6 +105,6 @@ jobs:
           ARTIFACT_NAME: scs-github-automation-test.jar
           ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
           VERIFY_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}

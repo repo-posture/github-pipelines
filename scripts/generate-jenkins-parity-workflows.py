@@ -22,7 +22,7 @@ HARNESS_COMMON = f"""\
           HARNESS_PROJECT_ID: {HARNESS_QA['proj']}"""
 
 KMS_INPUTS = f"""\
-          VAULT_ADDR: ${{{{ secrets.VAULT_ADDR }}}}
+          VAULT_ADDR: ${{{{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}}}
           VAULT_TOKEN: ${{{{ secrets.VAULT_TOKEN }}}}
           KMS_KEY: ${{{{ vars.KMS_KEY }}}}"""
 

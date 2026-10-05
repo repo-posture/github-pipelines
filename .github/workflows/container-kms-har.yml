@@ -69,7 +69,7 @@ jobs:
           SBOM_FORMAT: cyclonedx-json
           PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.HAR_USERNAME }}
@@ -84,7 +84,7 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SIGNING_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.HAR_USERNAME }}
@@ -99,7 +99,7 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SIGNING_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.HAR_USERNAME }}
@@ -115,7 +115,7 @@ jobs:
           SLSA_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
           ATTEST_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.HAR_USERNAME }}
@@ -131,7 +131,7 @@ jobs:
           SLSA_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
           VERIFY_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.HAR_USERNAME }}
@@ -149,7 +149,7 @@ jobs:
           SOURCE_TYPE: har
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.HAR_USERNAME }}

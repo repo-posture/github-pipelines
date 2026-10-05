@@ -58,7 +58,7 @@ jobs:
           SBOM_FORMAT: cyclonedx-json
           PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -73,7 +73,7 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kms
           SOURCE_TYPE: acr
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -88,7 +88,7 @@ jobs:
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kms
           SOURCE_TYPE: acr
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -104,7 +104,7 @@ jobs:
           SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kms
           SOURCE_TYPE: acr
           ATTEST_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -120,7 +120,7 @@ jobs:
           SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kms
           SOURCE_TYPE: acr
           VERIFY_SLSA: "true"
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -138,7 +138,7 @@ jobs:
           SOURCE_TYPE: acr
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
-          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
