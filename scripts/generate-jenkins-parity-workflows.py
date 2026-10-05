@@ -582,9 +582,9 @@ def repo_clone_step(branch: str = "main") -> str:
         run: |
           set -eux
           rm -rf repo
-          # Header auth only — embedding PAT in URL is fragile with special chars
-          git -c http.extraHeader="x-api-key: ${{HARNESS_API_KEY}}" \\
-            clone --depth 1 -b {branch} "$REPO_URL" repo
+          # Jenkins parity: PAT in URL as username x-api-key (header-only 403s on GHA)
+          git clone --depth 1 -b {branch} \\
+            "https://x-api-key:${{HARNESS_API_KEY}}@${{REPO_URL#https://}}" repo
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
 """
