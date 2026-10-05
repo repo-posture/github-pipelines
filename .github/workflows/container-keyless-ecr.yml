@@ -1,0 +1,185 @@
+# Mirrors jenkins-pipelines/pipelines/Jenkinsfile.container-keyless-ecr
+# Container · ECR · keyless
+name: "container-keyless-ecr"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    name: Build & push image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      registry: ${{ steps.ecr.outputs.registry }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push
+        id: meta
+        env:
+          ECR_REGISTRY: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}
+        run: |
+          set -eux
+          IMAGE="${ECR_REGISTRY}:${{ github.run_number }}-ecr-kl"
+          printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
+          aws ecr create-repository --repository-name scs-automation-test --region "${{ vars.AWS_REGION || 'us-east-1' }}" 2>/dev/null || true
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+  scs:
+    name: SCS pipeline
+    needs: [build]
+    runs-on: ubuntu-latest
+    env:
+      FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: ECR password for plugins
+        id: ecrpw
+        run: |
+          TOKEN=$(aws ecr get-login-password --region "${{ vars.AWS_REGION || 'us-east-1' }}")
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+      - name: SBOM orchestrate (Syft)
+        uses: ./v2/sbom-generation
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: ecr
+          SBOM_TOOL: Syft
+          SBOM_FORMAT: cyclonedx-json
+          PLUGIN_SBOMDESTINATION: harness
+          ATTEST_SBOM: "true"
+          PLUGIN_KEYLESS_TYPE: non-harness
+          DOCKER_USERNAME: AWS
+          DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}
+      - name: SBOM generation (cdxgen)
+        uses: ./v2/sbom-generation
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: ecr
+          SBOM_TOOL: cdxgen
+          SBOM_FORMAT: cyclonedx-json
+          PLUGIN_SBOMDESTINATION: harness
+          ATTEST_SBOM: "true"
+          PLUGIN_KEYLESS_TYPE: non-harness
+          DOCKER_USERNAME: AWS
+          DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}
+      - name: SBOM enforce (cdxgen)
+        continue-on-error: true
+        uses: ./v2/sbom-policy-enforcement
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: ecr
+          VERIFY_SBOM: "true"
+          POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
+          PLUGIN_KEYLESS_TYPE: non-harness
+          DOCKER_USERNAME: AWS
+          DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}
+      - name: Artifact sign
+        uses: ./v2/artifact-signing
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SIGNING_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: ecr
+          PLUGIN_KEYLESS_TYPE: non-harness
+          DOCKER_USERNAME: AWS
+          DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}
+      - name: Artifact verify
+        uses: ./v2/artifact-verification
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SIGNING_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: ecr
+          PLUGIN_KEYLESS_TYPE: non-harness
+          DOCKER_USERNAME: AWS
+          DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}
+      - name: SLSA attest
+        uses: ./v2/slsa-generation
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: ecr
+          ATTEST_SLSA: "true"
+          PLUGIN_KEYLESS_TYPE: non-harness
+          DOCKER_USERNAME: AWS
+          DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}
+      - name: SLSA verify
+        uses: ./v2/slsa-verification
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: ecr
+          VERIFY_SLSA: "true"
+          PLUGIN_KEYLESS_TYPE: non-harness
+          DOCKER_USERNAME: AWS
+          DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}
+      - name: SBOM enforce
+        continue-on-error: true
+        uses: ./v2/sbom-policy-enforcement
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: ecr
+          VERIFY_SBOM: "true"
+          POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
+          PLUGIN_KEYLESS_TYPE: non-harness
+          DOCKER_USERNAME: AWS
+          DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}

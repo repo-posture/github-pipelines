@@ -1,31 +1,24 @@
-# Non-container V2 E2E on QA using GitHub OIDC keyless signing.
-# Plugin jobs run in parallel; each plugin's subcommands run sequentially.
-name: "V2 non-container-keyless"
+# Mirrors jenkins-pipelines/pipelines/Jenkinsfile.non-container-keyless
+# Non-container orchestrate · keyless
+name: "non-container-keyless"
 
 on:
   workflow_dispatch:
-    inputs:
-      attest:
-        description: "Run keyless attestation and corresponding verification steps"
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
   id-token: write
 
 jobs:
-  ssca:
-    name: ssca
+  scs:
+    name: Non-container orch
     runs-on: ubuntu-latest
     env:
       FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/prepare-non-container-artifact
-
-      - name: SBOM generation (orchestrate)
+      - name: SBOM orchestrate
         uses: ./v2/sbom-generation
         with:
           HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
@@ -37,110 +30,13 @@ jobs:
           SBOM_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           ARTIFACT_NAME: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_VERSION: v1
-          SBOM_TOOL: ${{ vars.SBOM_TOOL }}
-          SBOM_FORMAT: ${{ vars.SBOM_FORMAT }}
-          PLUGIN_SBOMDESTINATION: ${{ vars.SBOM_LOCAL_PATH }}
-          ATTEST_SBOM: ${{ inputs.attest }}
+          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          SBOM_TOOL: Syft
+          SBOM_FORMAT: cyclonedx-json
+          PLUGIN_SBOMDESTINATION: harness
+          ATTEST_SBOM: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
-
-      - name: Resolve SBOM file for ingestion
-        env:
-          SBOM_LOCAL_PATH: ${{ vars.SBOM_LOCAL_PATH }}
-        run: |
-          SBOM_FILE="$(ls -t "$SBOM_LOCAL_PATH"/sbom_*.json 2>/dev/null | head -1)"
-          if [ -z "$SBOM_FILE" ]; then
-            echo "No SBOM file under $SBOM_LOCAL_PATH" >&2
-            exit 1
-          fi
-          echo "INGESTION_SBOM_FILE=$SBOM_FILE" >> "$GITHUB_ENV"
-
-      - name: SBOM ingestion (orchestrate)
-        uses: ./v2/sbom-ingestion
-        with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
-          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SOURCE_TYPE: local
-          SBOM_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_VERSION: v1
-          PLUGIN_SBOMDESTINATION: ${{ env.INGESTION_SBOM_FILE }}
-          ATTEST_SBOM: ${{ inputs.attest }}
-          PLUGIN_KEYLESS_TYPE: non-harness
-
-      - name: SBOM policy enforcement (enforce)
-        uses: ./v2/sbom-policy-enforcement
-        with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
-          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SOURCE_TYPE: local
-          SBOM_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_VERSION: v1
-          VERIFY_SBOM: ${{ inputs.attest }}
-          POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
-          PLUGIN_KEYLESS_TYPE: non-harness
-
-  slsa:
-    name: slsa
-    runs-on: ubuntu-latest
-    env:
-      FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/prepare-non-container-artifact
-
-      - name: SLSA provenance (attest)
-        uses: ./v2/slsa-generation
-        with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
-          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SOURCE_TYPE: local
-          SLSA_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: v1
-          ATTEST_SLSA: ${{ inputs.attest }}
-          PLUGIN_KEYLESS_TYPE: non-harness
-
-      - name: SLSA verification
-        if: ${{ inputs.attest }}
-        uses: ./v2/slsa-verification
-        with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
-          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SOURCE_TYPE: local
-          SLSA_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: v1
-          VERIFY_SLSA: "true"
-          PLUGIN_KEYLESS_TYPE: non-harness
-
-  artifact-signing:
-    name: artifact-signing
-    runs-on: ubuntu-latest
-    env:
-      FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/prepare-non-container-artifact
-
-      - name: Artifact signing
+      - name: Artifact sign
         uses: ./v2/artifact-signing
         with:
           HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
@@ -152,10 +48,9 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: v1
+          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
           PLUGIN_KEYLESS_TYPE: non-harness
-
-      - name: Artifact verification
+      - name: Artifact verify
         uses: ./v2/artifact-verification
         with:
           HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
@@ -167,5 +62,35 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: v1
+          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          PLUGIN_KEYLESS_TYPE: non-harness
+      - name: SLSA attest
+        uses: ./v2/slsa-generation
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: local
+          SLSA_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
+          ARTIFACT_NAME: scs-sample-app.zip
+          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          ATTEST_SLSA: "true"
+          PLUGIN_KEYLESS_TYPE: non-harness
+      - name: SLSA verify
+        uses: ./v2/slsa-verification
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: local
+          SLSA_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
+          ARTIFACT_NAME: scs-sample-app.zip
+          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          VERIFY_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness

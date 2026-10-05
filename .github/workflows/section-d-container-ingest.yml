@@ -1,0 +1,61 @@
+# Mirrors jenkins-pipelines/pipelines/Jenkinsfile.section-d-container-ingest
+# JK-047 container SBOM file ingest
+name: "section-d-container-ingest"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & push image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push
+        id: meta
+        run: |
+          set -eux
+          IMAGE="docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-ing"
+          printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+  scs:
+    name: Container ingest
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Generate SBOM file (syft)
+        run: |
+          set -eux
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/work" -w /work \
+            anchore/syft:latest "${{ needs.build.outputs.image }}" -o "cyclonedx-json=/work/container-ingest.cdx.json"
+      - name: Container SBOM ingest
+        uses: ./v2/sbom-ingestion
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SOURCE_TYPE: docker
+          PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/container-ingest.cdx.json
+          ATTEST_SBOM: "false"
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

@@ -1,0 +1,110 @@
+# Mirrors jenkins-pipelines/pipelines/Jenkinsfile.non-container-kms-ing
+# Non-container ingestion · kms
+name: "non-container-kms-ing"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scs:
+    name: Non-container ingest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build artifact
+        run: |
+          set -eux
+          mkdir -p target
+          echo "scenario=local-ing-kms build=${{ github.run_number }}" > target/scs-github-automation-test.jar
+      - name: Generate SBOM (Syft)
+        run: |
+          set -eux
+          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest \
+            "file:/work/target/scs-github-automation-test.jar" -o spdx-json=/work/sbom.json
+      - name: SBOM ingest
+        uses: ./v2/sbom-ingestion
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: local
+          SBOM_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          ARTIFACT_NAME: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/sbom.json
+          ATTEST_SBOM: "false"
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+          KMS_KEY: ${{ vars.KMS_KEY }}
+      - name: Artifact sign
+        uses: ./v2/artifact-signing
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: local
+          SIGNING_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          ARTIFACT_NAME: scs-github-automation-test.jar
+          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+          KMS_KEY: ${{ vars.KMS_KEY }}
+      - name: Artifact verify
+        uses: ./v2/artifact-verification
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: local
+          SIGNING_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          ARTIFACT_NAME: scs-github-automation-test.jar
+          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+          KMS_KEY: ${{ vars.KMS_KEY }}
+      - name: SLSA attest
+        uses: ./v2/slsa-generation
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: local
+          SLSA_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          ARTIFACT_NAME: scs-github-automation-test.jar
+          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          ATTEST_SLSA: "true"
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+          KMS_KEY: ${{ vars.KMS_KEY }}
+      - name: SLSA verify
+        uses: ./v2/slsa-verification
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          SOURCE_TYPE: local
+          SLSA_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          ARTIFACT_NAME: scs-github-automation-test.jar
+          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          VERIFY_SLSA: "true"
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+          KMS_KEY: ${{ vars.KMS_KEY }}

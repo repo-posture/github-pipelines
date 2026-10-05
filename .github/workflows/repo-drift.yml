@@ -1,0 +1,83 @@
+# Mirrors jenkins-pipelines/pipelines/Jenkinsfile.repo-drift
+# Repo SBOM drift detection (main vs go)
+name: "repo-drift"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: Baseline SBOM (branch go)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone sample repository
+        env:
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+        run: |
+          set -eux
+          rm -rf repo
+          git clone --depth 1 -b go \
+            "https://x-api-key:${HARNESS_API_KEY}@${REPO_URL#https://}" repo
+          git -C repo remote set-url origin "$REPO_URL"
+          ls -la repo
+      - name: Orchestrate go (baseline)
+        uses: ./v2/repo-sbom-generation
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+          REPO_PATH: /
+          REPO_VARIANT: go
+          REPO_VARIANT_TYPE: branch
+          REPO_CLONED_CODEBASE: ${{ github.workspace }}/repo
+          SBOM_TOOL: Syft
+          SBOM_FORMAT: spdx-json
+          PLUGIN_SBOMDESTINATION: harness
+          ATTEST_SBOM: "false"
+
+  drift:
+    name: Drift SBOM (main vs go)
+    needs: [baseline]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone sample repository
+        env:
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+        run: |
+          set -eux
+          rm -rf repo
+          git clone --depth 1 -b main \
+            "https://x-api-key:${HARNESS_API_KEY}@${REPO_URL#https://}" repo
+          git -C repo remote set-url origin "$REPO_URL"
+          ls -la repo
+      - name: Orchestrate main + drift
+        uses: ./v2/repo-sbom-generation
+        env:
+          PLUGIN_SBOM_DRIFT: repository
+          PLUGIN_SBOM_DRIFT_VARIANT: go
+          PLUGIN_SBOM_DRIFT_VARIANT_TYPE: branch
+        with:
+          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
+          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
+          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
+          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+          REPO_PATH: /
+          REPO_VARIANT: main
+          REPO_VARIANT_TYPE: branch
+          REPO_CLONED_CODEBASE: ${{ github.workspace }}/repo
+          SBOM_TOOL: Syft
+          SBOM_FORMAT: spdx-json
+          PLUGIN_SBOMDESTINATION: harness
+          ATTEST_SBOM: "false"

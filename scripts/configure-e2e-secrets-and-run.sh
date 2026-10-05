@@ -45,6 +45,6 @@ gh variable set SBOM_LOCAL_PATH -R "$REPO" -b "${SBOM_LOCAL_PATH:-/tmp/sbom}"
 gh variable set GIT_REPO_URL -R "$REPO" -b "${GIT_REPO_URL:-https://github.com/KartikSaurya/Buggy-App.git}"
 gh variable set GIT_BRANCH -R "$REPO" -b "${GIT_BRANCH:-main}"
 
-WORKFLOW="${WORKFLOW:-container-kms.yml}"
+WORKFLOW="${WORKFLOW:-container-kms-docker.yml}"
 gh workflow run "$WORKFLOW" -R "$REPO" --ref main
 echo "Dispatched $WORKFLOW on $REPO — see https://github.com/$REPO/actions"
