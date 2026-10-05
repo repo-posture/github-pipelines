@@ -582,10 +582,9 @@ def repo_clone_step(branch: str = "main") -> str:
         run: |
           set -eux
           rm -rf repo
-          ENC=$(python3 -c "import urllib.parse,os; print(urllib.parse.quote(os.environ['HARNESS_API_KEY'], safe=''))")
+          # Header auth only — embedding PAT in URL is fragile with special chars
           git -c http.extraHeader="x-api-key: ${{HARNESS_API_KEY}}" \\
-            clone --depth 1 -b {branch} \\
-            "https://x-api-key:${{ENC}}@${{REPO_URL#https://}}" repo
+            clone --depth 1 -b {branch} "$REPO_URL" repo
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
 """
