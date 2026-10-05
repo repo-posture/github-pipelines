@@ -21,8 +21,10 @@ jobs:
         run: |
           set -eux
           rm -rf repo
-          git clone --depth 1 -b main \
-            "https://x-api-key:${HARNESS_API_KEY}@${REPO_URL#https://}" repo
+          ENC=$(python3 -c "import urllib.parse,os; print(urllib.parse.quote(os.environ['HARNESS_API_KEY'], safe=''))")
+          git -c http.extraHeader="x-api-key: ${HARNESS_API_KEY}" \
+            clone --depth 1 -b main \
+            "https://x-api-key:${ENC}@${REPO_URL#https://}" repo
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
       - name: Repository SBOM generation

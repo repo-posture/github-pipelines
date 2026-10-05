@@ -278,11 +278,22 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
     creds = docker_creds(registry)
     sign = signing_block(mode)
     ver = verify_block(mode)
-    env_fulcio = (
-        "    env:\n      FULCIO_URL: ${{ vars.FULCIO_QA_URL }}\n"
-        if keyless
-        else ""
-    )
+    env_lines = []
+    if keyless:
+        env_lines.append("      FULCIO_URL: ${{ vars.FULCIO_QA_URL }}")
+    if registry == "ecr":
+        env_lines += [
+            "      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}",
+            "      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+            "      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}",
+        ]
+    if registry == "acr":
+        env_lines += [
+            "      CLIENT_ID: ${{ secrets.ACR_CLIENT_ID }}",
+            "      CLIENT_SECRET: ${{ secrets.ACR_CLIENT_SECRET }}",
+            "      TENANT_ID: ${{ vars.AZURE_TENANT_ID || 'b229b2bb-5f33-4d22-bce0-730f6474e906' }}",
+        ]
+    env_fulcio = ("    env:\n" + "\n".join(env_lines) + "\n") if env_lines else ""
 
     # For ECR, refresh login password each job
     ecr_login_fix = ""
@@ -571,8 +582,10 @@ def repo_clone_step(branch: str = "main") -> str:
         run: |
           set -eux
           rm -rf repo
-          git clone --depth 1 -b {branch} \\
-            "https://x-api-key:${{HARNESS_API_KEY}}@${{REPO_URL#https://}}" repo
+          ENC=$(python3 -c "import urllib.parse,os; print(urllib.parse.quote(os.environ['HARNESS_API_KEY'], safe=''))")
+          git -c http.extraHeader="x-api-key: ${{HARNESS_API_KEY}}" \\
+            clone --depth 1 -b {branch} \\
+            "https://x-api-key:${{ENC}}@${{REPO_URL#https://}}" repo
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
 """

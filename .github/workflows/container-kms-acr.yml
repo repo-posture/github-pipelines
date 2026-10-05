@@ -37,6 +37,10 @@ jobs:
     name: SCS pipeline
     needs: [build]
     runs-on: ubuntu-latest
+    env:
+      CLIENT_ID: ${{ secrets.ACR_CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.ACR_CLIENT_SECRET }}
+      TENANT_ID: ${{ vars.AZURE_TENANT_ID || 'b229b2bb-5f33-4d22-bce0-730f6474e906' }}
     steps:
       - uses: actions/checkout@v4
       - uses: azure/docker-login@v2
