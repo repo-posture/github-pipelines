@@ -96,11 +96,10 @@ runs:
           export PLUGIN_NON_HARNESS_OIDC_TOKEN
         fi
         PLUGIN_IMAGE="${{ inputs.PLUGIN_IMAGE }}"
-        ENV_FILE="$(mktemp)"
-        env | grep -E '^(HARNESS_|GITHUB_|SBOM_|SOURCE_|PLUGIN_|SSCA_|VAULT_|DOCKER_|ATTEST_|POLICY_|VERIFY_|REPO_|SLSA_|REGISTRY_|KMS_|GCP_|RUNNER_|ACTIONS_ID_TOKEN|OIDC_|FULCIO_)' > "$ENV_FILE" || true
-        if [ -n "${PLUGIN_NON_HARNESS_OIDC_TOKEN:-}" ]; then
-          echo "PLUGIN_NON_HARNESS_OIDC_TOKEN=${PLUGIN_NON_HARNESS_OIDC_TOKEN}" >> "$ENV_FILE"
-        fi
+        # shellcheck source=/dev/null
+        source "${GITHUB_ACTION_PATH}/../common/plugin-docker-env.sh"
+        build_plugin_docker_env
+        trap cleanup_plugin_docker_env EXIT
         DOCKER_SOCK_MOUNT=()
         case "${SOURCE_TYPE:-docker}" in
           docker|image)
@@ -111,7 +110,8 @@ runs:
           "${DOCKER_SOCK_MOUNT[@]}" \
           -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" \
           -w "${GITHUB_WORKSPACE}" \
-          --env-file "$ENV_FILE" \
+          --env-file "$PLUGIN_ENV_FILE" \
+          "${PLUGIN_DOCKER_E_ARGS[@]}" \
           --entrypoint /bin/slsa-plugin \
           "$PLUGIN_IMAGE" \
           github-provenance
