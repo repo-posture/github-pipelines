@@ -48,11 +48,11 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SBOM_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -67,7 +67,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ needs.build.outputs.image }}
+          SIGNING_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -82,7 +82,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ needs.build.outputs.image }}
+          SIGNING_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -97,7 +97,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SLSA_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
           ATTEST_SLSA: "true"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
@@ -113,7 +113,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SLSA_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
           VERIFY_SLSA: "true"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
@@ -130,7 +130,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SBOM_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-kms
           SOURCE_TYPE: docker
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}

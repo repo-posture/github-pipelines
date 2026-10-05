@@ -212,6 +212,40 @@ def source_type(registry: str) -> str:
     return {"docker": "docker", "ecr": "ecr", "acr": "acr", "har": "har"}[registry]
 
 
+def image_ref(registry: str, tag_suffix: str) -> str:
+    """Deterministic image ref for SCS steps.
+
+    Do not pass needs.build.outputs.image across jobs: if the ref embeds a
+    secret (e.g. DOCKER_USERNAME), GitHub blanks the dependent-job value.
+    """
+    if registry == "docker":
+        return (
+            "docker.io/autosscauser/scs-github-automation-test:"
+            f"${{{{ github.run_number }}}}-{tag_suffix}"
+        )
+    if registry == "ecr":
+        return (
+            "${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}"
+            f":${{{{ github.run_number }}}}-{tag_suffix}"
+        )
+    if registry == "acr":
+        return (
+            "${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test"
+            f":${{{{ github.run_number }}}}-{tag_suffix}"
+        )
+    if registry == "har":
+        return (
+            "pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}"
+            f":${{{{ github.run_number }}}}-{tag_suffix}"
+        )
+    raise ValueError(registry)
+
+
+# Local filesystem path for SBOM output. Jenkins uses PLUGIN_SBOMDESTINATION=harness
+# (platform semantic); GHA v2 actions treat it as a host path for docker -v.
+SBOM_DEST = "/tmp/sbom"
+
+
 def signing_block(mode: str) -> str:
     if mode == "kms":
         return KMS_INPUTS
@@ -236,6 +270,7 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
     """Full container chain matching Jenkins: build → sbom → sign → verify → slsa → enforce."""
     keyless = mode == "keyless"
     st = source_type(registry)
+    img = image_ref(registry, tag_suffix)
     desc = f"Container · {registry.upper()} · {mode}"
     h = header(name, desc, keyless=keyless)
     build = build_push(registry, tag_suffix)
@@ -271,11 +306,11 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
         uses: ./v2/sbom-generation
         with:
 {HARNESS_COMMON}
-          SBOM_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SBOM_SOURCE: {img}
           SOURCE_TYPE: {st}
           SBOM_TOOL: cdxgen
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: {SBOM_DEST}
           ATTEST_SBOM: "true"
 {sign}
 {creds}
@@ -284,7 +319,7 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
         uses: ./v2/sbom-policy-enforcement
         with:
 {HARNESS_COMMON}
-          SBOM_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SBOM_SOURCE: {img}
           SOURCE_TYPE: {st}
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{{{ vars.OPA_QA_POLICY_SET_REF }}}}
@@ -305,11 +340,11 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
         uses: ./v2/sbom-generation
         with:
 {HARNESS_COMMON}
-          SBOM_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SBOM_SOURCE: {img}
           SOURCE_TYPE: {st}
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: {SBOM_DEST}
           ATTEST_SBOM: "{attest_sbom}"
 {sign}
 {creds}
@@ -317,7 +352,7 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
         uses: ./v2/artifact-signing
         with:
 {HARNESS_COMMON}
-          SIGNING_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SIGNING_SOURCE: {img}
           SOURCE_TYPE: {st}
 {sign}
 {creds}
@@ -325,7 +360,7 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
         uses: ./v2/artifact-verification
         with:
 {HARNESS_COMMON}
-          SIGNING_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SIGNING_SOURCE: {img}
           SOURCE_TYPE: {st}
 {ver}
 {creds}
@@ -333,7 +368,7 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
         uses: ./v2/slsa-generation
         with:
 {HARNESS_COMMON}
-          SLSA_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SLSA_SOURCE: {img}
           SOURCE_TYPE: {st}
           ATTEST_SLSA: "true"
 {sign}
@@ -342,7 +377,7 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
         uses: ./v2/slsa-verification
         with:
 {HARNESS_COMMON}
-          SLSA_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SLSA_SOURCE: {img}
           SOURCE_TYPE: {st}
           VERIFY_SLSA: "true"
 {ver}
@@ -352,7 +387,7 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
         uses: ./v2/sbom-policy-enforcement
         with:
 {HARNESS_COMMON}
-          SBOM_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SBOM_SOURCE: {img}
           SOURCE_TYPE: {st}
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{{{ vars.OPA_QA_POLICY_SET_REF }}}}
@@ -396,7 +431,7 @@ def non_container_orch(name: str, mode: str) -> str:
           ARTIFACT_VERSION: local-orch-{mode}-${{{{ github.run_number }}}}
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: {SBOM_DEST}
           ATTEST_SBOM: "{attest}"
 {sign}
       - name: Artifact sign
@@ -562,7 +597,7 @@ def repo_gen(name: str, tool: str, fmt: str) -> str:
           REPO_CLONED_CODEBASE: ${{{{ github.workspace }}}}/repo
           SBOM_TOOL: {tool}
           SBOM_FORMAT: {fmt}
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: {SBOM_DEST}
           ATTEST_SBOM: "false"
       - name: SBOM policy enforce
         continue-on-error: true
@@ -624,7 +659,7 @@ def repo_drift() -> str:
           REPO_CLONED_CODEBASE: ${{{{ github.workspace }}}}/repo
           SBOM_TOOL: Syft
           SBOM_FORMAT: spdx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: {SBOM_DEST}
           ATTEST_SBOM: "false"
 
   drift:
@@ -648,19 +683,18 @@ def repo_drift() -> str:
           REPO_CLONED_CODEBASE: ${{{{ github.workspace }}}}/repo
           SBOM_TOOL: Syft
           SBOM_FORMAT: spdx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: {SBOM_DEST}
           ATTEST_SBOM: "false"
 """
 
 
 def section_d_container_ingest() -> str:
     h = header("section-d-container-ingest", "JK-047 container SBOM file ingest")
+    img = image_ref("docker", "d-ing")
     return h + f"""\
   build:
     name: Build & push image
     runs-on: ubuntu-latest
-    outputs:
-      image: ${{{{ steps.meta.outputs.image }}}}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
@@ -671,11 +705,10 @@ def section_d_container_ingest() -> str:
         id: meta
         run: |
           set -eux
-          IMAGE="docker.io/autosscauser/scs-github-automation-test:${{{{ github.run_number }}}}-d-ing"
+          IMAGE="{img}"
           printf 'FROM alpine:3.19\\nLABEL build="%s"\\n' "${{{{ github.run_number }}}}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
-          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
 
   scs:
     name: Container ingest
@@ -691,12 +724,12 @@ def section_d_container_ingest() -> str:
         run: |
           set -eux
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/work" -w /work \\
-            anchore/syft:latest "${{{{ needs.build.outputs.image }}}}" -o "cyclonedx-json=/work/container-ingest.cdx.json"
+            anchore/syft:latest "{img}" -o "cyclonedx-json=/work/container-ingest.cdx.json"
       - name: Container SBOM ingest
         uses: ./v2/sbom-ingestion
         with:
 {HARNESS_COMMON}
-          SBOM_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SBOM_SOURCE: {img}
           SOURCE_TYPE: docker
           PLUGIN_SBOMDESTINATION: ${{{{ github.workspace }}}}/container-ingest.cdx.json
           ATTEST_SBOM: "false"
@@ -709,12 +742,11 @@ def section_d_attest(name: str, mode: str) -> str:
     h = header(name, f"Section D attest-only · {mode}")
     sign = signing_block(mode)
     ver = verify_block(mode)
+    img = image_ref("docker", f"d-{mode}")
     return h + f"""\
   build:
     name: Build & push image
     runs-on: ubuntu-latest
-    outputs:
-      image: ${{{{ steps.meta.outputs.image }}}}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
@@ -725,11 +757,10 @@ def section_d_attest(name: str, mode: str) -> str:
         id: meta
         run: |
           set -eux
-          IMAGE="docker.io/autosscauser/scs-github-automation-test:${{{{ github.run_number }}}}-d-{mode}"
+          IMAGE="{img}"
           printf 'FROM alpine:3.19\\nLABEL build="%s"\\n' "${{{{ github.run_number }}}}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
-          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
 
   scs:
     name: Attest
@@ -745,11 +776,11 @@ def section_d_attest(name: str, mode: str) -> str:
         uses: ./v2/sbom-generation
         with:
 {HARNESS_COMMON}
-          SBOM_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SBOM_SOURCE: {img}
           SOURCE_TYPE: docker
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: {SBOM_DEST}
           ATTEST_SBOM: "true"
 {sign}
           DOCKER_USERNAME: ${{{{ secrets.DOCKER_USERNAME }}}}
@@ -758,7 +789,7 @@ def section_d_attest(name: str, mode: str) -> str:
         uses: ./v2/slsa-generation
         with:
 {HARNESS_COMMON}
-          SLSA_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SLSA_SOURCE: {img}
           SOURCE_TYPE: docker
           ATTEST_SLSA: "true"
 {sign}
@@ -768,7 +799,7 @@ def section_d_attest(name: str, mode: str) -> str:
         uses: ./v2/slsa-verification
         with:
 {HARNESS_COMMON}
-          SLSA_SOURCE: ${{{{ needs.build.outputs.image }}}}
+          SLSA_SOURCE: {img}
           SOURCE_TYPE: docker
           VERIFY_SLSA: "true"
 {ver}

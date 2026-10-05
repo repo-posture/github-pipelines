@@ -40,7 +40,7 @@ jobs:
           REPO_CLONED_CODEBASE: ${{ github.workspace }}/repo
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
       - name: SBOM policy enforce
         continue-on-error: true

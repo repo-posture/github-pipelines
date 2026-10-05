@@ -40,7 +40,7 @@ jobs:
           REPO_CLONED_CODEBASE: ${{ github.workspace }}/repo
           SBOM_TOOL: Syft
           SBOM_FORMAT: spdx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
 
   drift:
@@ -79,5 +79,5 @@ jobs:
           REPO_CLONED_CODEBASE: ${{ github.workspace }}/repo
           SBOM_TOOL: Syft
           SBOM_FORMAT: spdx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"

@@ -33,7 +33,7 @@ jobs:
           ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: Artifact sign

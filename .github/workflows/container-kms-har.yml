@@ -63,11 +63,11 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SBOM_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -82,7 +82,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ needs.build.outputs.image }}
+          SIGNING_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -97,7 +97,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ needs.build.outputs.image }}
+          SIGNING_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -112,7 +112,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SLSA_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
           ATTEST_SLSA: "true"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
@@ -128,7 +128,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SLSA_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
           VERIFY_SLSA: "true"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
@@ -145,7 +145,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SBOM_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kms
           SOURCE_TYPE: har
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}

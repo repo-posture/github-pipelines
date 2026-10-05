@@ -12,8 +12,6 @@ jobs:
   build:
     name: Build & push image
     runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.meta.outputs.image }}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
@@ -28,7 +26,6 @@ jobs:
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
-          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
 
   scs:
     name: Attest
@@ -48,11 +45,11 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SBOM_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-kms
           SOURCE_TYPE: docker
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "true"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -67,7 +64,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SLSA_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-kms
           SOURCE_TYPE: docker
           ATTEST_SLSA: "true"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
@@ -83,7 +80,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SLSA_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-kms
           SOURCE_TYPE: docker
           VERIFY_SLSA: "true"
           VAULT_ADDR: ${{ secrets.VAULT_ADDR }}

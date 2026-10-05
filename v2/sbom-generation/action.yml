@@ -123,7 +123,12 @@ runs:
         if [ -n "${PLUGIN_NON_HARNESS_OIDC_TOKEN:-}" ]; then
           echo "PLUGIN_NON_HARNESS_OIDC_TOKEN=${PLUGIN_NON_HARNESS_OIDC_TOKEN}" >> "$ENV_FILE"
         fi
+        # Jenkins uses PLUGIN_SBOMDESTINATION=harness (platform sink). Treat that
+        # (and empty) as a local path so docker -v gets an absolute mount.
         SBOM_PATH="${PLUGIN_SBOMDESTINATION:-/tmp/sbom}"
+        if [ -z "$SBOM_PATH" ] || [ "$SBOM_PATH" = "harness" ]; then
+          SBOM_PATH="/tmp/sbom"
+        fi
         SBOM_DIR="$(dirname "$SBOM_PATH")"
         mkdir -p "$SBOM_DIR"
         DOCKER_SOCK_MOUNT=()

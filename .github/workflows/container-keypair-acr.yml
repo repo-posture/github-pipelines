@@ -52,11 +52,11 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
-          PLUGIN_SBOMDESTINATION: harness
+          PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "false"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -70,7 +70,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ needs.build.outputs.image }}
+          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -84,7 +84,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ needs.build.outputs.image }}
+          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -97,7 +97,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           ATTEST_SLSA: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -112,7 +112,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ needs.build.outputs.image }}
+          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           VERIFY_SLSA: "true"
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
@@ -127,7 +127,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ needs.build.outputs.image }}
+          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
