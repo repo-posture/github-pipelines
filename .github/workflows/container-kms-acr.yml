@@ -36,7 +36,7 @@ jobs:
   scs:
     name: SCS pipeline
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, local-vpn]
     env:
       CLIENT_ID: ${{ secrets.ACR_CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.ACR_CLIENT_SECRET }}

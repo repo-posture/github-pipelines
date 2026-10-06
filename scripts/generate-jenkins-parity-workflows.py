@@ -245,6 +245,17 @@ def image_ref(registry: str, tag_suffix: str) -> str:
 # (platform semantic); GHA v2 actions treat it as a host path for docker -v.
 SBOM_DEST = "/tmp/sbom"
 
+# GitLab KMS jobs use `tags: [local-vpn]` on project runner
+# `scs-gke-runner (sscs-play cluster)`. GitHub equivalent:
+# self-hosted Linux runner with Docker + Vault reachability.
+RUNS_ON_HOSTED = "ubuntu-latest"
+# Match registered runner labels (GitHub reports OS as "Linux"; extra "linux" can miss).
+RUNS_ON_KMS = "[self-hosted, local-vpn]"
+
+
+def runs_on(mode: str) -> str:
+    return RUNS_ON_KMS if mode == "kms" else RUNS_ON_HOSTED
+
 
 def signing_block(mode: str) -> str:
     if mode == "kms":
@@ -344,7 +355,7 @@ def container_pipeline(name: str, registry: str, mode: str, tag_suffix: str, wit
   scs:
     name: SCS pipeline
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: {runs_on(mode)}
 {env_fulcio}    steps:
       - uses: actions/checkout@v4
 {login}{ecr_login_fix}      - name: SBOM orchestrate (Syft)
@@ -428,7 +439,7 @@ def non_container_orch(name: str, mode: str) -> str:
     return h + f"""\
   scs:
     name: Non-container orch
-    runs-on: ubuntu-latest
+    runs-on: {runs_on(mode)}
 {env_fulcio}    steps:
       - uses: actions/checkout@v4
 {prepare_artifact_step()}      - name: SBOM orchestrate
@@ -503,7 +514,7 @@ def non_container_ing(name: str, mode: str) -> str:
     return h + f"""\
   scs:
     name: Non-container ingest
-    runs-on: ubuntu-latest
+    runs-on: {runs_on(mode)}
 {env_fulcio}    steps:
       - uses: actions/checkout@v4
       - name: Build artifact
@@ -794,7 +805,7 @@ def section_d_attest(name: str, mode: str) -> str:
   scs:
     name: Attest
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: {runs_on(mode)}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3

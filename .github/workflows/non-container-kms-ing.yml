@@ -11,7 +11,7 @@ permissions:
 jobs:
   scs:
     name: Non-container ingest
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, local-vpn]
     steps:
       - uses: actions/checkout@v4
       - name: Build artifact

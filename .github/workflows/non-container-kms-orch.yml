@@ -11,7 +11,7 @@ permissions:
 jobs:
   scs:
     name: Non-container orch
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, local-vpn]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/prepare-non-container-artifact

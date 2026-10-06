@@ -1,0 +1,61 @@
+# GitHub Actions runner equivalent of GitLab `scs-gke-runner (sscs-play cluster)`
+# with tag `local-vpn`.
+#
+# Apply on the SAME GKE cluster GitLab uses (sscs-play / SSCA team standard).
+# Privileged so dockerd works (GKE nodes are containerd; jobs need Docker).
+#
+#   kubectl apply -f scripts/gke-gha-local-vpn-runner.yaml
+#   kubectl -n github-scs-runner create secret generic gha-runner \
+#     --from-literal=token="<registration token from gh api>"
+#
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: github-scs-runner
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gha-local-vpn
+  namespace: github-scs-runner
+  labels:
+    app: gha-local-vpn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gha-local-vpn
+  template:
+    metadata:
+      labels:
+        app: gha-local-vpn
+    spec:
+      containers:
+        - name: runner
+          image: myoung34/github-runner:latest
+          imagePullPolicy: Always
+          env:
+            - name: REPO_URL
+              value: https://github.com/repo-posture/github-pipelines
+            - name: RUNNER_NAME
+              value: scs-gke-gha-local-vpn
+            - name: RUNNER_LABELS
+              value: linux,local-vpn
+            - name: RUNNER_WORKDIR
+              value: /tmp/runner
+            - name: DISABLE_AUTO_UPDATE
+              value: "1"
+            - name: RUNNER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gha-runner
+                  key: token
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi

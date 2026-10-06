@@ -43,7 +43,7 @@ jobs:
   scs:
     name: SCS pipeline
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, local-vpn]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
