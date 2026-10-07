@@ -4,7 +4,7 @@ inputs:
   PLUGIN_IMAGE:
     description: "Plugin Docker image built from ssca-plugins (V2 github subcommands)"
     required: false
-    default: "harness/ssca-plugin:test-githubV2"
+    default: "harness/ssca-plugin:0.69.0"
   HARNESS_ACCOUNT_URL:
     required: true
   HARNESS_API_KEY:

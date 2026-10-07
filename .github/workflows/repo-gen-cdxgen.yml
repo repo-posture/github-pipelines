@@ -43,7 +43,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          PLUGIN_IMAGE: harness/ssca-cdxgen-plugin:test-githubV2
+          PLUGIN_IMAGE: harness/ssca-cdxgen-plugin:0.69.0
           REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
           REPO_PATH: npm
           REPO_VARIANT: main

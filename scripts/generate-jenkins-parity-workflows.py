@@ -892,7 +892,7 @@ def main() -> None:
             "cdxgen",
             "cyclonedx-json",
             repo_path="npm",
-            plugin_image="harness/ssca-cdxgen-plugin:test-githubV2",
+            plugin_image="harness/ssca-cdxgen-plugin:0.69.0",
         ),
     )
     write("repo-ingest", repo_ingest())

@@ -4,7 +4,7 @@ Companion to [repo-posture/jenkins-pipelines](https://github.com/repo-posture/je
 
 Each file under `.github/workflows/` is the GitHub Actions equivalent of one Jenkinsfile in [`pipelines/`](https://github.com/repo-posture/jenkins-pipelines/tree/main/pipelines). Workflows **build/push (or prepare a local artifact)**, then run the same SCS chain: SBOM orchestrate, artifact sign/verify, SLSA attest/verify, policy enforce.
 
-Plugin image tags default to `test-githubV2` via the local `v2/` composite actions.
+Plugin image tags default to `0.69.0` via the local `v2/` composite actions.
 
 Remote repo: https://github.com/repo-posture/github-pipelines
 
