@@ -11,7 +11,7 @@ permissions:
 jobs:
   build:
     name: Build & push image
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, local-vpn]
     outputs:
       image: ${{ steps.meta.outputs.image }}
     steps:
