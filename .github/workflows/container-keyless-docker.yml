@@ -75,6 +75,7 @@ jobs:
           PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
+          PLUGIN_IMAGE: harness/ssca-cdxgen-plugin:0.69.0
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       - name: SBOM enforce (cdxgen)

@@ -12,7 +12,8 @@ permissions:
 jobs:
   build:
     name: Build & push image
-    runs-on: [self-hosted, local-vpn]
+    # Keyless does not need Vault/VPN; keep on hosted runners (local-vpn often offline).
+    runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.meta.outputs.image }}
     steps:
@@ -44,7 +45,7 @@ jobs:
   scs:
     name: SCS pipeline
     needs: [build]
-    runs-on: [self-hosted, local-vpn]
+    runs-on: ubuntu-latest
     env:
       FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
     steps:
