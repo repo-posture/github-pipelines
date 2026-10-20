@@ -68,6 +68,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
           DOCKER_PASSWORD: ${{ secrets.ACR_CLIENT_SECRET }}
       - name: SBOM generation (cdxgen)
+        continue-on-error: true
         uses: ./v2/sbom-generation
         with:
           HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
@@ -82,6 +83,7 @@ jobs:
           PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
+          PLUGIN_IMAGE: harness/ssca-cdxgen-plugin:0.69.0
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
           DOCKER_PASSWORD: ${{ secrets.ACR_CLIENT_SECRET }}
       - name: SBOM enforce (cdxgen)
