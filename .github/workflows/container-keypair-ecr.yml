@@ -1,9 +1,36 @@
 # Mirrors jenkins-pipelines/pipelines/Jenkinsfile.container-keypair-ecr
 # Container · ECR · keypair
 name: "container-keypair-ecr"
+run-name: ${{ github.workflow }} [${{ inputs.correlation_id }}]
+
 
 on:
   workflow_dispatch:
+    inputs:
+      correlation_id:
+        description: Unique id for Automation to resolve this run
+        required: true
+        type: string
+      harness_account_url:
+        description: Harness account URL
+        required: false
+        type: string
+        default: "https://qa0.harness.io"
+      harness_account_id:
+        description: Harness account id
+        required: false
+        type: string
+        default: "ppbLW9YpRharzPs_JtWT7g"
+      harness_org_id:
+        description: Harness org id
+        required: false
+        type: string
+        default: "SSCA"
+      harness_project_id:
+        description: Harness project id (Automation -Dproject target)
+        required: false
+        type: string
+        default: "SSCA_Sanity_Automation"
 
 permissions:
   contents: read
@@ -29,12 +56,12 @@ jobs:
       - name: Build and push
         id: meta
         env:
-          ECR_REGISTRY: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}
+          ECR_REGISTRY: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/github-scs-automation-test' }}
         run: |
           set -eux
           IMAGE="${ECR_REGISTRY}:${{ github.run_number }}-ecr-kp"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
-          aws ecr create-repository --repository-name scs-automation-test --region "${{ vars.AWS_REGION || 'us-east-1' }}" 2>/dev/null || true
+          aws ecr create-repository --repository-name github-scs-automation-test --region "${{ vars.AWS_REGION || 'us-east-1' }}" 2>/dev/null || true
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
@@ -67,12 +94,12 @@ jobs:
       - name: SBOM orchestrate (Syft)
         uses: ./v2/sbom-generation
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SBOM_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/github-scs-automation-test' }}:${{ github.run_number }}-ecr-kp
           SOURCE_TYPE: ecr
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -85,12 +112,12 @@ jobs:
       - name: Artifact sign
         uses: ./v2/artifact-signing
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SIGNING_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/github-scs-automation-test' }}:${{ github.run_number }}-ecr-kp
           SOURCE_TYPE: ecr
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -99,12 +126,12 @@ jobs:
       - name: Artifact verify
         uses: ./v2/artifact-verification
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SIGNING_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/github-scs-automation-test' }}:${{ github.run_number }}-ecr-kp
           SOURCE_TYPE: ecr
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
           DOCKER_USERNAME: AWS
@@ -112,12 +139,12 @@ jobs:
       - name: SLSA attest
         uses: ./v2/slsa-generation
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SLSA_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/github-scs-automation-test' }}:${{ github.run_number }}-ecr-kp
           SOURCE_TYPE: ecr
           ATTEST_SLSA: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -127,12 +154,12 @@ jobs:
       - name: SLSA verify
         uses: ./v2/slsa-verification
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SLSA_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/github-scs-automation-test' }}:${{ github.run_number }}-ecr-kp
           SOURCE_TYPE: ecr
           VERIFY_SLSA: "true"
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
@@ -142,12 +169,12 @@ jobs:
         continue-on-error: true
         uses: ./v2/sbom-policy-enforcement
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}:${{ github.run_number }}-ecr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SBOM_SOURCE: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/github-scs-automation-test' }}:${{ github.run_number }}-ecr-kp
           SOURCE_TYPE: ecr
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}

@@ -1,9 +1,36 @@
 # Mirrors jenkins-pipelines/pipelines/Jenkinsfile.section-d-container-ingest
 # JK-047 container SBOM file ingest
 name: "section-d-container-ingest"
+run-name: ${{ github.workflow }} [${{ inputs.correlation_id }}]
+
 
 on:
   workflow_dispatch:
+    inputs:
+      correlation_id:
+        description: Unique id for Automation to resolve this run
+        required: true
+        type: string
+      harness_account_url:
+        description: Harness account URL
+        required: false
+        type: string
+        default: "https://qa0.harness.io"
+      harness_account_id:
+        description: Harness account id
+        required: false
+        type: string
+        default: "ppbLW9YpRharzPs_JtWT7g"
+      harness_org_id:
+        description: Harness org id
+        required: false
+        type: string
+        default: "SSCA"
+      harness_project_id:
+        description: Harness project id (Automation -Dproject target)
+        required: false
+        type: string
+        default: "SSCA_Sanity_Automation"
 
 permissions:
   contents: read
@@ -22,7 +49,7 @@ jobs:
         id: meta
         run: |
           set -eux
-          IMAGE="docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-ing"
+          IMAGE="docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-d-ing"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
@@ -41,16 +68,16 @@ jobs:
         run: |
           set -eux
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/work" -w /work \
-            anchore/syft:latest "docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-ing" -o "cyclonedx-json=/work/container-ingest.cdx.json"
+            anchore/syft:latest "docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-d-ing" -o "cyclonedx-json=/work/container-ingest.cdx.json"
       - name: Container SBOM ingest
         uses: ./v2/sbom-ingestion
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-ing
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-d-ing
           SOURCE_TYPE: docker
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/container-ingest.cdx.json
           ATTEST_SBOM: "false"

@@ -1,9 +1,36 @@
 # Mirrors jenkins-pipelines/pipelines/Jenkinsfile.non-container-keyless-ing
 # Non-container ingestion · keyless
 name: "non-container-keyless-ing"
+run-name: ${{ github.workflow }} [${{ inputs.correlation_id }}]
+
 
 on:
   workflow_dispatch:
+    inputs:
+      correlation_id:
+        description: Unique id for Automation to resolve this run
+        required: true
+        type: string
+      harness_account_url:
+        description: Harness account URL
+        required: false
+        type: string
+        default: "https://qa0.harness.io"
+      harness_account_id:
+        description: Harness account id
+        required: false
+        type: string
+        default: "ppbLW9YpRharzPs_JtWT7g"
+      harness_org_id:
+        description: Harness org id
+        required: false
+        type: string
+        default: "SSCA"
+      harness_project_id:
+        description: Harness project id (Automation -Dproject target)
+        required: false
+        type: string
+        default: "SSCA_Sanity_Automation"
 
 permissions:
   contents: read
@@ -21,24 +48,24 @@ jobs:
         run: |
           set -eux
           mkdir -p target
-          echo "scenario=local-ing-keyless build=${{ github.run_number }}" > target/scs-github-automation-test.jar
+          echo "scenario=local-ing-keyless build=${{ github.run_number }}" > target/github-scs-automation-test.jar
       - name: Generate SBOM (Syft)
         run: |
           set -eux
           docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest \
-            "file:/work/target/scs-github-automation-test.jar" -o spdx-json=/work/sbom.json
+            "file:/work/target/github-scs-automation-test.jar" -o spdx-json=/work/sbom.json
       - name: SBOM ingest
         uses: ./v2/sbom-ingestion
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SBOM_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          ARTIFACT_NAME: ${{ github.workspace }}/target/scs-github-automation-test.jar
+          SBOM_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          ARTIFACT_NAME: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_VERSION: local-ing-keyless-${{ github.run_number }}
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/sbom.json
           ATTEST_SBOM: "false"
@@ -46,58 +73,58 @@ jobs:
       - name: Artifact sign
         uses: ./v2/artifact-signing
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SIGNING_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          ARTIFACT_NAME: scs-github-automation-test.jar
+          SIGNING_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          ARTIFACT_NAME: github-scs-automation-test.jar
           ARTIFACT_VERSION: local-ing-keyless-${{ github.run_number }}
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: Artifact verify
         uses: ./v2/artifact-verification
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SIGNING_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          ARTIFACT_NAME: scs-github-automation-test.jar
+          SIGNING_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          ARTIFACT_NAME: github-scs-automation-test.jar
           ARTIFACT_VERSION: local-ing-keyless-${{ github.run_number }}
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: SLSA attest
         uses: ./v2/slsa-generation
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SLSA_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          ARTIFACT_NAME: scs-github-automation-test.jar
+          SLSA_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          ARTIFACT_NAME: github-scs-automation-test.jar
           ARTIFACT_VERSION: local-ing-keyless-${{ github.run_number }}
           ATTEST_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: SLSA verify
         uses: ./v2/slsa-verification
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SLSA_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
-          ARTIFACT_NAME: scs-github-automation-test.jar
+          SLSA_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
+          ARTIFACT_NAME: github-scs-automation-test.jar
           ARTIFACT_VERSION: local-ing-keyless-${{ github.run_number }}
           VERIFY_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness

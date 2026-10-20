@@ -1,9 +1,36 @@
 # Mirrors jenkins-pipelines/pipelines/Jenkinsfile.container-keypair-acr
 # Container · ACR · keypair
 name: "container-keypair-acr"
+run-name: ${{ github.workflow }} [${{ inputs.correlation_id }}]
+
 
 on:
   workflow_dispatch:
+    inputs:
+      correlation_id:
+        description: Unique id for Automation to resolve this run
+        required: true
+        type: string
+      harness_account_url:
+        description: Harness account URL
+        required: false
+        type: string
+        default: "https://qa0.harness.io"
+      harness_account_id:
+        description: Harness account id
+        required: false
+        type: string
+        default: "ppbLW9YpRharzPs_JtWT7g"
+      harness_org_id:
+        description: Harness org id
+        required: false
+        type: string
+        default: "SSCA"
+      harness_project_id:
+        description: Harness project id (Automation -Dproject target)
+        required: false
+        type: string
+        default: "SSCA_Sanity_Automation"
 
 permissions:
   contents: read
@@ -27,7 +54,7 @@ jobs:
           ACR: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}
         run: |
           set -eux
-          IMAGE="${ACR}/scs-automation-test:${{ github.run_number }}-acr-kp"
+          IMAGE="${ACR}/github-scs-automation-test:${{ github.run_number }}-acr-kp"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
@@ -51,12 +78,12 @@ jobs:
       - name: SBOM orchestrate (Syft)
         uses: ./v2/sbom-generation
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -69,12 +96,12 @@ jobs:
       - name: Artifact sign
         uses: ./v2/artifact-signing
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -83,12 +110,12 @@ jobs:
       - name: Artifact verify
         uses: ./v2/artifact-verification
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -96,12 +123,12 @@ jobs:
       - name: SLSA attest
         uses: ./v2/slsa-generation
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           ATTEST_SLSA: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -111,12 +138,12 @@ jobs:
       - name: SLSA verify
         uses: ./v2/slsa-verification
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           VERIFY_SLSA: "true"
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
@@ -126,12 +153,12 @@ jobs:
         continue-on-error: true
         uses: ./v2/sbom-policy-enforcement
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/scs-automation-test:${{ github.run_number }}-acr-kp
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kp
           SOURCE_TYPE: acr
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}

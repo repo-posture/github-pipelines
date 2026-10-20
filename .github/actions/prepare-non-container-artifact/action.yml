@@ -1,5 +1,5 @@
 name: Prepare non-container sample artifact
-description: Build a zip artifact under artifacts/scs-sample-app.zip (matches Jenkins non-container pipeline)
+description: Build a zip artifact under artifacts/github-scs-sample-app.zip (matches Jenkins non-container pipeline)
 runs:
   using: composite
   steps:
@@ -10,13 +10,13 @@ runs:
         rm -rf "${GITHUB_WORKSPACE}/sample-app" "${GITHUB_WORKSPACE}/artifacts"
         mkdir -p "${GITHUB_WORKSPACE}/sample-app" "${GITHUB_WORKSPACE}/artifacts"
 
-        printf '%s\n' '{"name":"scs-sample-app","version":"1.0.0","description":"Sample app for SCS non-container testing","dependencies":{"express":"4.18.2","lodash":"4.17.21","axios":"1.6.2","moment":"2.29.4","uuid":"9.0.0"}}' \
+        printf '%s\n' '{"name":"github-scs-sample-app","version":"1.0.0","description":"Sample app for SCS non-container testing","dependencies":{"express":"4.18.2","lodash":"4.17.21","axios":"1.6.2","moment":"2.29.4","uuid":"9.0.0"}}' \
           > "${GITHUB_WORKSPACE}/sample-app/package.json"
-        echo '{"name":"scs-sample-app","version":"1.0.0","lockfileVersion":2,"requires":true,"packages":{}}' > "${GITHUB_WORKSPACE}/sample-app/package-lock.json"
+        echo '{"name":"github-scs-sample-app","version":"1.0.0","lockfileVersion":2,"requires":true,"packages":{}}' > "${GITHUB_WORKSPACE}/sample-app/package-lock.json"
         echo "binary-payload-$(date +%s)" > "${GITHUB_WORKSPACE}/sample-app/app.bin"
         echo "SCS GitHub non-container sample" > "${GITHUB_WORKSPACE}/sample-app/README.txt"
 
-        OUT="${GITHUB_WORKSPACE}/artifacts/scs-sample-app.zip"
+        OUT="${GITHUB_WORKSPACE}/artifacts/github-scs-sample-app.zip"
         (cd "${GITHUB_WORKSPACE}" && zip -r "$OUT" sample-app)
         ls -la "$OUT"
         echo "NON_CONTAINER_ARTIFACT_PATH=${OUT}" >> "$GITHUB_ENV"

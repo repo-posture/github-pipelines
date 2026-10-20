@@ -1,9 +1,36 @@
 # Mirrors jenkins-pipelines/pipelines/Jenkinsfile.repo-gen-syft-spdx
 # Repo SBOM generation · Syft · spdx-json
 name: "repo-gen-syft-spdx"
+run-name: ${{ github.workflow }} [${{ inputs.correlation_id }}]
+
 
 on:
   workflow_dispatch:
+    inputs:
+      correlation_id:
+        description: Unique id for Automation to resolve this run
+        required: true
+        type: string
+      harness_account_url:
+        description: Harness account URL
+        required: false
+        type: string
+        default: "https://qa0.harness.io"
+      harness_account_id:
+        description: Harness account id
+        required: false
+        type: string
+        default: "ppbLW9YpRharzPs_JtWT7g"
+      harness_org_id:
+        description: Harness org id
+        required: false
+        type: string
+        default: "SSCA"
+      harness_project_id:
+        description: Harness project id (Automation -Dproject target)
+        required: false
+        type: string
+        default: "SSCA_Sanity_Automation"
 
 permissions:
   contents: read
@@ -17,7 +44,7 @@ jobs:
       - name: Clone sample repository
         env:
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/github-sbom-sample.git' }}
         run: |
           set -eux
           rm -rf repo
@@ -38,12 +65,12 @@ jobs:
       - name: Repository SBOM generation
         uses: ./v2/repo-sbom-generation
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
+          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/github-sbom-sample.git' }}
           REPO_PATH: /
           REPO_VARIANT: main
           REPO_VARIANT_TYPE: branch
@@ -56,14 +83,14 @@ jobs:
         continue-on-error: true
         uses: ./v2/sbom-policy-enforcement
         with:
-          HARNESS_ACCOUNT_URL: ${{ vars.HARNESS_QA_ACCOUNT_URL }}
+          HARNESS_ACCOUNT_URL: ${{ inputs.harness_account_url }}
           HARNESS_API_KEY: ${{ secrets.HARNESS_QA_API_KEY }}
-          HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
-          HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
-          HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
+          HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
+          HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
+          HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: repository
-          SBOM_SOURCE: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
-          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/sbom-direct-indirect-dependencies.git' }}
+          SBOM_SOURCE: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/github-sbom-sample.git' }}
+          REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/github-sbom-sample.git' }}
           REPO_PATH: /
           REPO_VARIANT: main
           REPO_VARIANT_TYPE: branch
