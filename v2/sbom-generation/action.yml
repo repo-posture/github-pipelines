@@ -114,7 +114,7 @@ runs:
           fi
           PLUGIN_NON_HARNESS_OIDC_TOKEN="$(curl -sSf \
             -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sigstore" | jq -r '.value')"
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=harness-fulcio" | jq -r '.value')"
           export PLUGIN_NON_HARNESS_OIDC_TOKEN
         fi
         PLUGIN_IMAGE="${{ inputs.PLUGIN_IMAGE }}"

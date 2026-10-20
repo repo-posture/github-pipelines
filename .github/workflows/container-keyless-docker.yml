@@ -36,7 +36,7 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     env:
-      FULCIO_URL: https://fulcio.sigstore.dev
+      FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
