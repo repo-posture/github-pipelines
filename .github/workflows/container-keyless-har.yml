@@ -12,8 +12,8 @@ permissions:
 jobs:
   build:
     name: Build & push image
-    # Keyless does not need Vault/VPN; keep on hosted runners (local-vpn often offline).
-    runs-on: ubuntu-latest
+    # Hosted GHA gets 403 to pkg.qa0; run on local self-hosted where HAR login works.
+    runs-on: [self-hosted, har-local]
     outputs:
       image: ${{ steps.meta.outputs.image }}
     steps:
@@ -45,7 +45,7 @@ jobs:
   scs:
     name: SCS pipeline
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, har-local]
     env:
       FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
     steps:
