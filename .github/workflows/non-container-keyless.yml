@@ -56,7 +56,7 @@ jobs:
           SOURCE_TYPE: local
           SBOM_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_NAME: github-scs-sample-app.zip
+          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_VERSION: local-orch-keyless-${{ inputs.correlation_id }}
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json

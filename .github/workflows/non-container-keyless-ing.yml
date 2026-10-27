@@ -65,7 +65,7 @@ jobs:
           SOURCE_TYPE: local
           SBOM_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
-          ARTIFACT_NAME: github-scs-automation-test.jar
+          ARTIFACT_NAME: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_VERSION: local-ing-keyless-${{ inputs.correlation_id }}
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/sbom.json
           ATTEST_SBOM: "false"
