@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: Unique id for Automation to resolve this run
+        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
         required: true
         type: string
       harness_account_url:
@@ -55,8 +55,8 @@ jobs:
           ACR: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}
         run: |
           set -eux
-          IMAGE="${ACR}/github-scs-automation-test:${{ github.run_number }}-acr-kl"
-          printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
+          IMAGE="${ACR}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl"
+          printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ inputs.correlation_id }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
@@ -85,7 +85,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kl
+          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl
           SOURCE_TYPE: acr
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -103,7 +103,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kl
+          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl
           SOURCE_TYPE: acr
           SBOM_TOOL: cdxgen
           SBOM_FORMAT: cyclonedx-json
@@ -122,7 +122,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kl
+          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl
           SOURCE_TYPE: acr
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
@@ -137,7 +137,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kl
+          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl
           SOURCE_TYPE: acr
           PLUGIN_KEYLESS_TYPE: non-harness
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -150,7 +150,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kl
+          SIGNING_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl
           SOURCE_TYPE: acr
           PLUGIN_KEYLESS_TYPE: non-harness
           DOCKER_USERNAME: ${{ secrets.ACR_CLIENT_ID }}
@@ -163,7 +163,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kl
+          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl
           SOURCE_TYPE: acr
           ATTEST_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
@@ -177,7 +177,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kl
+          SLSA_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl
           SOURCE_TYPE: acr
           VERIFY_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
@@ -192,7 +192,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ github.run_number }}-acr-kl
+          SBOM_SOURCE: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl
           SOURCE_TYPE: acr
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}

@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: Unique id for Automation to resolve this run
+        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
         required: true
         type: string
       harness_account_url:
@@ -53,8 +53,8 @@ jobs:
           SOURCE_TYPE: local
           SBOM_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keypair-${{ github.run_number }}
+          ARTIFACT_NAME: github-scs-sample-app.zip
+          ARTIFACT_VERSION: local-orch-keypair-${{ inputs.correlation_id }}
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
           PLUGIN_SBOMDESTINATION: /tmp/sbom
@@ -73,7 +73,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_NAME: github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keypair-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-keypair-${{ inputs.correlation_id }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
       - name: Artifact verify
@@ -88,7 +88,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_NAME: github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keypair-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-keypair-${{ inputs.correlation_id }}
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
       - name: SLSA attest
         uses: ./v2/slsa-generation
@@ -102,7 +102,7 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_NAME: github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keypair-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-keypair-${{ inputs.correlation_id }}
           ATTEST_SLSA: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -118,6 +118,6 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_NAME: github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keypair-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-keypair-${{ inputs.correlation_id }}
           VERIFY_SLSA: "true"
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}

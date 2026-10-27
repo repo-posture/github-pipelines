@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: Unique id for Automation to resolve this run
+        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
         required: true
         type: string
       harness_account_url:
@@ -49,8 +49,8 @@ jobs:
         id: meta
         run: |
           set -eux
-          IMAGE="docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-d-ing"
-          printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
+          IMAGE="docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-d-ing"
+          printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ inputs.correlation_id }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
 
@@ -68,7 +68,7 @@ jobs:
         run: |
           set -eux
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/work" -w /work \
-            anchore/syft:latest "docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-d-ing" -o "cyclonedx-json=/work/container-ingest.cdx.json"
+            anchore/syft:latest "docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-d-ing" -o "cyclonedx-json=/work/container-ingest.cdx.json"
       - name: Container SBOM ingest
         uses: ./v2/sbom-ingestion
         with:
@@ -77,7 +77,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-d-ing
+          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-d-ing
           SOURCE_TYPE: docker
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/container-ingest.cdx.json
           ATTEST_SBOM: "false"

@@ -26,7 +26,7 @@ jobs:
           SOURCE_TYPE: local
           SBOM_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/scs-sample-app.zip
+          ARTIFACT_NAME: scs-sample-app.zip
           ARTIFACT_VERSION: local-orch-kms-${{ github.run_number }}
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json

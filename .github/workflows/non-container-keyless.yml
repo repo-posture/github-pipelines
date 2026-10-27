@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: Unique id for Automation to resolve this run
+        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
         required: true
         type: string
       harness_account_url:
@@ -56,8 +56,8 @@ jobs:
           SOURCE_TYPE: local
           SBOM_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          ARTIFACT_NAME: github-scs-sample-app.zip
+          ARTIFACT_VERSION: local-orch-keyless-${{ inputs.correlation_id }}
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
           PLUGIN_SBOMDESTINATION: /tmp/sbom
@@ -75,7 +75,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_NAME: github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-keyless-${{ inputs.correlation_id }}
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: Artifact verify
         uses: ./v2/artifact-verification
@@ -89,7 +89,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_NAME: github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-keyless-${{ inputs.correlation_id }}
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: SLSA attest
         uses: ./v2/slsa-generation
@@ -103,7 +103,7 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_NAME: github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-keyless-${{ inputs.correlation_id }}
           ATTEST_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: SLSA verify
@@ -118,6 +118,6 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_NAME: github-scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-keyless-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-keyless-${{ inputs.correlation_id }}
           VERIFY_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness

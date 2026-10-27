@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: Unique id for Automation to resolve this run
+        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
         required: true
         type: string
       harness_account_url:
@@ -52,8 +52,8 @@ jobs:
         id: meta
         run: |
           set -eux
-          IMAGE="docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl"
-          printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
+          IMAGE="docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl"
+          printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ inputs.correlation_id }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
@@ -78,7 +78,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl
+          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl
           SOURCE_TYPE: docker
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -96,7 +96,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl
+          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl
           SOURCE_TYPE: docker
           SBOM_TOOL: cdxgen
           SBOM_FORMAT: cyclonedx-json
@@ -115,7 +115,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl
+          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl
           SOURCE_TYPE: docker
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
@@ -130,7 +130,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SIGNING_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl
+          SIGNING_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl
           SOURCE_TYPE: docker
           PLUGIN_KEYLESS_TYPE: non-harness
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -143,7 +143,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SIGNING_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl
+          SIGNING_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl
           SOURCE_TYPE: docker
           PLUGIN_KEYLESS_TYPE: non-harness
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -156,7 +156,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SLSA_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl
+          SLSA_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl
           SOURCE_TYPE: docker
           ATTEST_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
@@ -170,7 +170,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SLSA_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl
+          SLSA_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl
           SOURCE_TYPE: docker
           VERIFY_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
@@ -185,7 +185,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ github.run_number }}-kl
+          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-kl
           SOURCE_TYPE: docker
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
