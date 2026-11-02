@@ -56,16 +56,10 @@ jobs:
           else
             echo "::warning::Harness Code clone failed (often 403 from GHA IPs); using fixtures/sbom-sample-repo"
             rm -rf repo
-            test -d fixtures/sbom-sample-repo
-            test -f fixtures/sbom-sample-repo/npm/package-lock.json
             cp -a fixtures/sbom-sample-repo repo
             git -C repo init
-            git -C repo config user.email "scs-gha@harness.io"
-            git -C repo config user.name "scs-gha"
             git -C repo remote remove origin 2>/dev/null || true
             git -C repo remote add origin "$REPO_URL"
-            git -C repo add -A
-            git -C repo commit -m "fixture" || true
           fi
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
