@@ -44,6 +44,7 @@ jobs:
       FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/wait-for-docker
       - uses: ./.github/actions/prepare-non-container-artifact
       - name: SBOM orchestrate
         uses: ./v2/sbom-generation

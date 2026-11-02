@@ -41,6 +41,7 @@ jobs:
     runs-on: [self-hosted, qpe-play]
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/actions/wait-for-docker
       - name: Build artifact
         run: |
           set -eux
