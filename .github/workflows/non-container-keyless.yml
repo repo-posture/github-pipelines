@@ -39,7 +39,7 @@ permissions:
 jobs:
   scs:
     name: Non-container orch
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, qpe-play]
     env:
       FULCIO_URL: ${{ vars.FULCIO_QA_URL }}
     steps:

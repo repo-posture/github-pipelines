@@ -38,7 +38,7 @@ permissions:
 jobs:
   build:
     name: Build & push image
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, qpe-play]
     outputs:
       image: ${{ steps.meta.outputs.image }}
     steps:
@@ -63,7 +63,7 @@ jobs:
   scs:
     name: SCS pipeline
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, qpe-play]
     env:
       CLIENT_ID: ${{ secrets.ACR_CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.ACR_CLIENT_SECRET }}
