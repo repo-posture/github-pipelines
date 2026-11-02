@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
+        description: UTC stamp from Automation — run title only; image tag/artifact version are stable per scenario
         required: true
         type: string
       harness_account_url:
@@ -59,7 +59,7 @@ jobs:
           ECR_REGISTRY: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/github-scs-automation-test' }}
         run: |
           set -eux
-          IMAGE="${ECR_REGISTRY}:${{ inputs.correlation_id }}-ecr-kp"
+          IMAGE="${ECR_REGISTRY}:keypair-ecr"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ inputs.correlation_id }}" > Dockerfile
           aws ecr create-repository --repository-name github-scs-automation-test --region "${{ vars.AWS_REGION || 'us-east-1' }}" 2>/dev/null || true
           docker build -t "$IMAGE" .

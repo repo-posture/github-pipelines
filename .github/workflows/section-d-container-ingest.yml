@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
+        description: UTC stamp from Automation — run title only; image tag/artifact version are stable per scenario
         required: true
         type: string
       harness_account_url:
@@ -49,7 +49,7 @@ jobs:
         id: meta
         run: |
           set -eux
-          IMAGE="docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-d-ing"
+          IMAGE="docker.io/autosscauser/github-scs-automation-test:section-d-ingest"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ inputs.correlation_id }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
@@ -68,7 +68,7 @@ jobs:
         run: |
           set -eux
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:/work" -w /work \
-            anchore/syft:latest "docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-d-ing" -o "cyclonedx-json=/work/container-ingest.cdx.json"
+            anchore/syft:latest "docker.io/autosscauser/github-scs-automation-test:section-d-ingest" -o "cyclonedx-json=/work/container-ingest.cdx.json"
       - name: Container SBOM ingest
         uses: ./v2/sbom-ingestion
         with:
@@ -77,7 +77,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:${{ inputs.correlation_id }}-d-ing
+          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:section-d-ingest
           SOURCE_TYPE: docker
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/container-ingest.cdx.json
           ATTEST_SBOM: "false"

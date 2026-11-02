@@ -36,7 +36,7 @@ jobs:
           SBOM_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           ARTIFACT_NAME: scs-github-automation-test.jar
-          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-ing-kms
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/sbom.json
           ATTEST_SBOM: "false"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
@@ -54,7 +54,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           ARTIFACT_NAME: scs-github-automation-test.jar
-          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-ing-kms
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
@@ -70,7 +70,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           ARTIFACT_NAME: scs-github-automation-test.jar
-          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-ing-kms
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
@@ -86,7 +86,7 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           ARTIFACT_NAME: scs-github-automation-test.jar
-          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-ing-kms
           ATTEST_SLSA: "true"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -103,7 +103,7 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/scs-github-automation-test.jar
           ARTIFACT_NAME: scs-github-automation-test.jar
-          ARTIFACT_VERSION: local-ing-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-ing-kms
           VERIFY_SLSA: "true"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}

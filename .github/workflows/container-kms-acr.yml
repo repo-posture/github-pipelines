@@ -27,7 +27,7 @@ jobs:
           ACR: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}
         run: |
           set -eux
-          IMAGE="${ACR}/scs-automation-test:${{ github.run_number }}-acr-kms"
+          IMAGE="${ACR}/github-scs-automation-test:kms-acr"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"

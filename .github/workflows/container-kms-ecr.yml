@@ -32,7 +32,7 @@ jobs:
           ECR_REGISTRY: ${{ vars.ECR_REGISTRY || '211125722538.dkr.ecr.us-east-1.amazonaws.com/scs-automation-test' }}
         run: |
           set -eux
-          IMAGE="${ECR_REGISTRY}:${{ github.run_number }}-ecr-kms"
+          IMAGE="${ECR_REGISTRY}:kms-ecr"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
           aws ecr create-repository --repository-name scs-automation-test --region "${{ vars.AWS_REGION || 'us-east-1' }}" 2>/dev/null || true
           docker build -t "$IMAGE" .

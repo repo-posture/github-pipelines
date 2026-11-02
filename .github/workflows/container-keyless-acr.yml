@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
+        description: UTC stamp from Automation — run title only; image tag/artifact version are stable per scenario
         required: true
         type: string
       harness_account_url:
@@ -55,7 +55,7 @@ jobs:
           ACR: ${{ vars.ACR_LOGIN_SERVER || 'sscatest.azurecr.io' }}
         run: |
           set -eux
-          IMAGE="${ACR}/github-scs-automation-test:${{ inputs.correlation_id }}-acr-kl"
+          IMAGE="${ACR}/github-scs-automation-test:keyless-acr"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ inputs.correlation_id }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"

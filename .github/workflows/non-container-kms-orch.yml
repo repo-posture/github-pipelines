@@ -27,7 +27,7 @@ jobs:
           SBOM_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-kms
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
           PLUGIN_SBOMDESTINATION: /tmp/sbom
@@ -47,7 +47,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-kms
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
@@ -63,7 +63,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-kms
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
           KMS_KEY: ${{ vars.KMS_KEY }}
@@ -79,7 +79,7 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-kms
           ATTEST_SLSA: "true"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -96,7 +96,7 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
           ARTIFACT_NAME: scs-sample-app.zip
-          ARTIFACT_VERSION: local-orch-kms-${{ github.run_number }}
+          ARTIFACT_VERSION: local-orch-kms
           VERIFY_SLSA: "true"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}

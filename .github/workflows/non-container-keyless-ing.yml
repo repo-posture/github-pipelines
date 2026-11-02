@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
+        description: UTC stamp from Automation — run title only; image tag/artifact version are stable per scenario
         required: true
         type: string
       harness_account_url:
@@ -66,7 +66,7 @@ jobs:
           SBOM_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: ${{ github.workspace }}/target/github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keyless-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keyless
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/sbom.json
           ATTEST_SBOM: "false"
           PLUGIN_KEYLESS_TYPE: non-harness
@@ -82,7 +82,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keyless-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keyless
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: Artifact verify
         uses: ./v2/artifact-verification
@@ -96,7 +96,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keyless-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keyless
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: SLSA attest
         uses: ./v2/slsa-generation
@@ -110,7 +110,7 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keyless-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keyless
           ATTEST_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: SLSA verify
@@ -125,6 +125,6 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keyless-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keyless
           VERIFY_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
