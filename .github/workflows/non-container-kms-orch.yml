@@ -1,9 +1,36 @@
 # Mirrors jenkins-pipelines/pipelines/Jenkinsfile.non-container-kms-orch
 # Non-container orchestrate · kms
 name: "non-container-kms-orch"
+run-name: ${{ github.workflow }} [${{ inputs.correlation_id }}]
+
 
 on:
   workflow_dispatch:
+    inputs:
+      correlation_id:
+        description: UTC stamp from Automation — run title only; image tag/artifact version are stable per scenario
+        required: true
+        type: string
+      harness_account_url:
+        description: Harness account URL
+        required: false
+        type: string
+        default: "https://qa0.harness.io"
+      harness_account_id:
+        description: Harness account id
+        required: false
+        type: string
+        default: "ppbLW9YpRharzPs_JtWT7g"
+      harness_org_id:
+        description: Harness org id
+        required: false
+        type: string
+        default: "SSCA"
+      harness_project_id:
+        description: Harness project id (Automation -Dproject target)
+        required: false
+        type: string
+        default: "SSCA_Sanity_Automation"
 
 permissions:
   contents: read
@@ -11,7 +38,7 @@ permissions:
 jobs:
   scs:
     name: Non-container orch
-    runs-on: [self-hosted, local-vpn]
+    runs-on: [self-hosted, qpe-play]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/prepare-non-container-artifact
@@ -24,9 +51,9 @@ jobs:
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SOURCE_TYPE: local
-          SBOM_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SBOM_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
           ARTIFACT_VERSION: local-orch-kms
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -44,9 +71,9 @@ jobs:
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SOURCE_TYPE: local
-          SIGNING_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          ARTIFACT_NAME: github-scs-sample-app.zip
           ARTIFACT_VERSION: local-orch-kms
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -60,9 +87,9 @@ jobs:
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SOURCE_TYPE: local
-          SIGNING_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          ARTIFACT_NAME: github-scs-sample-app.zip
           ARTIFACT_VERSION: local-orch-kms
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
@@ -76,9 +103,9 @@ jobs:
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SOURCE_TYPE: local
-          SLSA_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          ARTIFACT_NAME: github-scs-sample-app.zip
           ARTIFACT_VERSION: local-orch-kms
           ATTEST_SLSA: "true"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
@@ -93,9 +120,9 @@ jobs:
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
           SOURCE_TYPE: local
-          SLSA_SOURCE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          ARTIFACT_NAME: github-scs-sample-app.zip
           ARTIFACT_VERSION: local-orch-kms
           VERIFY_SLSA: "true"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
