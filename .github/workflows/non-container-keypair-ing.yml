@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
+        description: UTC stamp from Automation — run title only; image tag/artifact version are stable per scenario
         required: true
         type: string
       harness_account_url:
@@ -38,7 +38,7 @@ permissions:
 jobs:
   scs:
     name: Non-container ingest
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, qpe-play]
     steps:
       - uses: actions/checkout@v4
       - name: Build artifact
@@ -63,7 +63,7 @@ jobs:
           SBOM_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: ${{ github.workspace }}/target/github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keypair-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keypair
           PLUGIN_SBOMDESTINATION: ${{ github.workspace }}/sbom.json
           ATTEST_SBOM: "false"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -80,7 +80,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keypair-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keypair
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
       - name: Artifact verify
@@ -95,7 +95,7 @@ jobs:
           SIGNING_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keypair-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keypair
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
       - name: SLSA attest
         uses: ./v2/slsa-generation
@@ -109,7 +109,7 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keypair-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keypair
           ATTEST_SLSA: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -125,6 +125,6 @@ jobs:
           SLSA_SOURCE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           PLUGIN_WORKSPACE: ${{ github.workspace }}/target/github-scs-automation-test.jar
           ARTIFACT_NAME: github-scs-automation-test.jar
-          ARTIFACT_VERSION: local-ing-keypair-${{ inputs.correlation_id }}
+          ARTIFACT_VERSION: local-ing-keypair
           VERIFY_SLSA: "true"
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}

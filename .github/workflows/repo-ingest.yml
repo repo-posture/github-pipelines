@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
+        description: UTC stamp from Automation — run title only; image tag/artifact version are stable per scenario
         required: true
         type: string
       harness_account_url:
@@ -38,7 +38,7 @@ permissions:
 jobs:
   scs:
     name: Repo ingest
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, qpe-play]
     steps:
       - uses: actions/checkout@v4
       - name: Clone sample repository

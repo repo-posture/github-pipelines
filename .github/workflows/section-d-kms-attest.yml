@@ -22,7 +22,7 @@ jobs:
         id: meta
         run: |
           set -eux
-          IMAGE="docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-kms"
+          IMAGE="docker.io/autosscauser/github-scs-automation-test:section-d-kms"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
           docker build -t "$IMAGE" .
           docker push "$IMAGE"
@@ -45,7 +45,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-kms
+          SBOM_SOURCE: docker.io/autosscauser/github-scs-automation-test:section-d-kms
           SOURCE_TYPE: docker
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -64,7 +64,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-kms
+          SLSA_SOURCE: docker.io/autosscauser/github-scs-automation-test:section-d-kms
           SOURCE_TYPE: docker
           ATTEST_SLSA: "true"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}
@@ -80,7 +80,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: docker.io/autosscauser/scs-github-automation-test:${{ github.run_number }}-d-kms
+          SLSA_SOURCE: docker.io/autosscauser/github-scs-automation-test:section-d-kms
           SOURCE_TYPE: docker
           VERIFY_SLSA: "true"
           VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vaultqa.harness.io' }}

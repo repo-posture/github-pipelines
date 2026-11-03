@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       correlation_id:
-        description: UTC stamp from Automation (yyyyMMdd-HHmmss) — run title, image tags, and artifact versions
+        description: UTC stamp from Automation — run title only; image tag/artifact version are stable per scenario
         required: true
         type: string
       harness_account_url:
@@ -38,7 +38,7 @@ permissions:
 jobs:
   baseline:
     name: Baseline SBOM (branch go)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, qpe-play]
     steps:
       - uses: actions/checkout@v4
       - name: Clone sample repository
@@ -58,10 +58,10 @@ jobs:
             git -C repo init
             git -C repo remote remove origin 2>/dev/null || true
             git -C repo remote add origin "$REPO_URL"
+            test -f repo/npm/package-lock.json
           fi
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
-          test -f repo/npm/package-lock.json
       - name: Orchestrate go (baseline)
         uses: ./v2/repo-sbom-generation
         with:
@@ -83,7 +83,7 @@ jobs:
   drift:
     name: Drift SBOM (main vs go)
     needs: [baseline]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, qpe-play]
     steps:
       - uses: actions/checkout@v4
       - name: Clone sample repository
@@ -103,10 +103,10 @@ jobs:
             git -C repo init
             git -C repo remote remove origin 2>/dev/null || true
             git -C repo remote add origin "$REPO_URL"
+            test -f repo/npm/package-lock.json
           fi
           git -C repo remote set-url origin "$REPO_URL"
           ls -la repo
-          test -f repo/npm/package-lock.json
       - name: Orchestrate main + drift
         uses: ./v2/repo-sbom-generation
         env:

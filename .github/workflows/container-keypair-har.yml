@@ -31,8 +31,8 @@ jobs:
           HAR_PATH: ${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}
         run: |
           set -eux
-          TMP="autosscauser/scs-github-automation-test:${{ github.run_number }}-har-kp"
-          IMAGE="pkg.qa0.harness.io/${HAR_PATH}:${{ github.run_number }}-har-kp"
+          TMP="autosscauser/github-scs-automation-test:keypair-har"
+          IMAGE="pkg.qa0.harness.io/${HAR_PATH}:keypair-har"
           printf 'FROM alpine:3.19\nLABEL build="%s"\n' "${{ github.run_number }}" > Dockerfile
           docker build -t "$TMP" .
           docker push "$TMP"
@@ -63,7 +63,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kp
+          SBOM_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:keypair-har
           SOURCE_TYPE: har
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -81,7 +81,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kp
+          SIGNING_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:keypair-har
           SOURCE_TYPE: har
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -95,7 +95,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SIGNING_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kp
+          SIGNING_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:keypair-har
           SOURCE_TYPE: har
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
           DOCKER_USERNAME: ${{ secrets.HAR_USERNAME }}
@@ -108,7 +108,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kp
+          SLSA_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:keypair-har
           SOURCE_TYPE: har
           ATTEST_SLSA: "true"
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -123,7 +123,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SLSA_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kp
+          SLSA_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:keypair-har
           SOURCE_TYPE: har
           VERIFY_SLSA: "true"
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
@@ -138,7 +138,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ vars.HARNESS_QA_ACCOUNT_ID }}
           HARNESS_ORG_ID: ${{ vars.HARNESS_QA_ORG_ID }}
           HARNESS_PROJECT_ID: ${{ vars.HARNESS_QA_PROJECT_ID }}
-          SBOM_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:${{ github.run_number }}-har-kp
+          SBOM_SOURCE: pkg.qa0.harness.io/${{ vars.HAR_REPO_PATH || 'ppblw9yprharzps_jtwt7g/ssca_har_automation_registry/scs-automation-test' }}:keypair-har
           SOURCE_TYPE: har
           VERIFY_SBOM: "true"
           POLICY_SET_REF: ${{ vars.OPA_QA_POLICY_SET_REF }}
