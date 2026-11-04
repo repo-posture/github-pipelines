@@ -29,7 +29,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'harness/slsa-plugin:0.37.0'
+  image: 'harness/slsa-plugin:latest'
   entrypoint: '/bin/slsa-plugin'
   args: 
    - github-slsa-verification
