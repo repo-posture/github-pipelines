@@ -70,7 +70,7 @@ jobs:
           HARNESS_ACCOUNT_ID: ${{ inputs.harness_account_id }}
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
-          PLUGIN_IMAGE: harness/ssca-cdxgen-plugin:0.69.0
+          PLUGIN_IMAGE: harness/ssca-cdxgen-plugin:latest
           REPO_URL: ${{ vars.GIT_REPO_URL || 'https://git.qa0.harness.io/ppbLW9YpRharzPs_JtWT7g/SSCA/SSCA_Sanity_Automation/github-sbom-sample.git' }}
           REPO_PATH: npm
           REPO_VARIANT: main

@@ -126,7 +126,7 @@ jobs:
           PLUGIN_SBOMDESTINATION: /tmp/sbom
           ATTEST_SBOM: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
-          PLUGIN_IMAGE: harness/ssca-cdxgen-plugin:0.69.0
+          PLUGIN_IMAGE: harness/ssca-cdxgen-plugin:latest
           DOCKER_USERNAME: AWS
           DOCKER_PASSWORD: ${{ steps.ecrpw.outputs.token }}
       - name: SBOM enforce (cdxgen)
