@@ -447,9 +447,9 @@ def non_container_orch(name: str, mode: str) -> str:
         with:
 {HARNESS_COMMON}
           SOURCE_TYPE: local
-          SBOM_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
+          SBOM_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          ARTIFACT_NAME: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-{mode}-${{{{ github.run_number }}}}
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -461,9 +461,9 @@ def non_container_orch(name: str, mode: str) -> str:
         with:
 {HARNESS_COMMON}
           SOURCE_TYPE: local
-          SIGNING_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SIGNING_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          ARTIFACT_NAME: scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-{mode}-${{{{ github.run_number }}}}
 {sign}
       - name: Artifact verify
@@ -471,9 +471,9 @@ def non_container_orch(name: str, mode: str) -> str:
         with:
 {HARNESS_COMMON}
           SOURCE_TYPE: local
-          SIGNING_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SIGNING_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          ARTIFACT_NAME: scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-{mode}-${{{{ github.run_number }}}}
 {ver}
       - name: SLSA attest
@@ -481,9 +481,9 @@ def non_container_orch(name: str, mode: str) -> str:
         with:
 {HARNESS_COMMON}
           SOURCE_TYPE: local
-          SLSA_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SLSA_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          ARTIFACT_NAME: scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-{mode}-${{{{ github.run_number }}}}
           ATTEST_SLSA: "true"
 {sign}
@@ -492,9 +492,9 @@ def non_container_orch(name: str, mode: str) -> str:
         with:
 {HARNESS_COMMON}
           SOURCE_TYPE: local
-          SLSA_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.zip
-          ARTIFACT_NAME: scs-sample-app.zip
+          SLSA_SOURCE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{{{ github.workspace }}}}/artifacts/scs-sample-app.tar.gz
+          ARTIFACT_NAME: scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-{mode}-${{{{ github.run_number }}}}
           VERIFY_SLSA: "true"
 {ver}

@@ -31,8 +31,8 @@ runs:
   using: 'docker'
   image: 'harness/slsa-plugin:latest'
   entrypoint: '/bin/slsa-plugin'
-  args: 
-   - github-provenance
+  args:
+   - github-attest
   env:
     HARNESS_ACCOUNT_URL: ${{ inputs.HARNESS_ACCOUNT_URL }}
     HARNESS_ACCOUNT_ID: ${{ inputs.HARNESS_ACCOUNT_ID }}
@@ -40,7 +40,7 @@ runs:
     HARNESS_PROJECT_ID: ${{ inputs.HARNESS_PROJECT_ID }}
     HARNESS_API_KEY: ${{ inputs.HARNESS_API_KEY }}
     SLSA_SOURCE: ${{ inputs.TARGET }}
-    PLUGIN_TYPE: 'github-provenance'
+    PLUGIN_TYPE: 'github-attest'
     ATTEST_SLSA: ${{ inputs.ATTEST }}
     KMS_KEY: ${{ inputs.KMS_KEY }}
     POLICY_SET_REF: ${{ inputs.POLICY_SET_REF }}

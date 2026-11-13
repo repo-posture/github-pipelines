@@ -54,9 +54,9 @@ jobs:
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SBOM_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
+          SBOM_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          ARTIFACT_NAME: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-keyless
           SBOM_TOOL: Syft
           SBOM_FORMAT: cyclonedx-json
@@ -72,9 +72,9 @@ jobs:
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_NAME: github-scs-sample-app.zip
+          SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          ARTIFACT_NAME: github-scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-keyless
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: Artifact verify
@@ -86,9 +86,9 @@ jobs:
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_NAME: github-scs-sample-app.zip
+          SIGNING_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          ARTIFACT_NAME: github-scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-keyless
           PLUGIN_KEYLESS_TYPE: non-harness
       - name: SLSA attest
@@ -100,9 +100,9 @@ jobs:
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_NAME: github-scs-sample-app.zip
+          SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          ARTIFACT_NAME: github-scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-keyless
           ATTEST_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
@@ -115,9 +115,9 @@ jobs:
           HARNESS_ORG_ID: ${{ inputs.harness_org_id }}
           HARNESS_PROJECT_ID: ${{ inputs.harness_project_id }}
           SOURCE_TYPE: local
-          SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.zip
-          ARTIFACT_NAME: github-scs-sample-app.zip
+          SLSA_SOURCE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          PLUGIN_WORKSPACE: ${{ github.workspace }}/artifacts/github-scs-sample-app.tar.gz
+          ARTIFACT_NAME: github-scs-sample-app.tar.gz
           ARTIFACT_VERSION: local-orch-keyless
           VERIFY_SLSA: "true"
           PLUGIN_KEYLESS_TYPE: non-harness
