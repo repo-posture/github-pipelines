@@ -83,6 +83,8 @@ runs:
         ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
         PLUGIN_LOCAL_FILE_VERSION: ${{ inputs.ARTIFACT_VERSION }}
         ARTIFACT_VERSION: ${{ inputs.ARTIFACT_VERSION }}
+        # slsa-plugin:latest requires PLUGIN_TYPE or a current subcommand (github-attest|github-verify|…).
+        PLUGIN_TYPE: github-attest
       run: |
         set -euo pipefail
         if [ "${PLUGIN_KEYLESS_TYPE:-}" = "non-harness" ]; then
@@ -114,4 +116,4 @@ runs:
           "${PLUGIN_DOCKER_E_ARGS[@]}" \
           --entrypoint /bin/slsa-plugin \
           "$PLUGIN_IMAGE" \
-          github-provenance
+          github-attest

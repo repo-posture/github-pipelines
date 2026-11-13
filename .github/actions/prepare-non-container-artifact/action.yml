@@ -1,9 +1,9 @@
 name: Prepare non-container sample artifact
-description: Build a zip artifact under artifacts/github-scs-sample-app.zip (matches Jenkins non-container pipeline)
+description: Build a tar.gz artifact under artifacts/github-scs-sample-app.tar.gz (ssca-plugin requires .tar or .tar.gz)
 runs:
   using: composite
   steps:
-    - name: Prepare zip artifact
+    - name: Prepare tar.gz artifact
       shell: bash
       run: |
         set -eu
@@ -16,7 +16,7 @@ runs:
         echo "binary-payload-$(date +%s)" > "${GITHUB_WORKSPACE}/sample-app/app.bin"
         echo "SCS GitHub non-container sample" > "${GITHUB_WORKSPACE}/sample-app/README.txt"
 
-        OUT="${GITHUB_WORKSPACE}/artifacts/github-scs-sample-app.zip"
-        (cd "${GITHUB_WORKSPACE}" && zip -r "$OUT" sample-app)
+        OUT="${GITHUB_WORKSPACE}/artifacts/github-scs-sample-app.tar.gz"
+        (cd "${GITHUB_WORKSPACE}" && tar -czf "$OUT" sample-app)
         ls -la "$OUT"
         echo "NON_CONTAINER_ARTIFACT_PATH=${OUT}" >> "$GITHUB_ENV"
